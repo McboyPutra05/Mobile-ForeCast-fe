@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fff8f5;}body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-tint":"#545f73","on-error-container":"#93000a","outline-variant":"#c5c6cd","surface-container-low":"#faf2ee","inverse-surface":"#33302d","surface-container-high":"#eee7e3","secondary":"#2c694e","on-secondary":"#ffffff","tertiary-fixed-dim":"#ffb3ad","primary-fixed":"#d8e3fb","on-background":"#1e1b19","surface-container-lowest":"#ffffff","on-secondary-container":"#316e52","on-primary":"#ffffff","tertiary-fixed":"#ffdad7","on-primary-fixed":"#111c2d","background":"#fff8f5","on-surface":"#1e1b19","tertiary":"#330002","error":"#ba1a1a","on-tertiary-fixed":"#410004","on-primary-fixed-variant":"#3c475a","tertiary-container":"#5a0007","secondary-fixed-dim":"#95d4b3","surface-dim":"#e0d8d5","primary":"#091426","on-secondary-fixed":"#002114","error-container":"#ffdad6","surface-variant":"#e9e1dd","on-error":"#ffffff","surface-container-highest":"#e9e1dd","surface-bright":"#fff8f5","inverse-primary":"#bcc7de","primary-fixed-dim":"#bcc7de","on-tertiary-fixed-variant":"#852221","on-secondary-fixed-variant":"#0e5138","primary-container":"#1e293b","on-surface-variant":"#45474c","on-primary-container":"#8590a6","outline":"#75777d","secondary-container":"#aeeecb","inverse-on-surface":"#f7efeb","on-tertiary":"#ffffff","secondary-fixed":"#b1f0ce","on-tertiary-container":"#e66962","surface":"#fff8f5","surface-container":"#f4ece8"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"gutter-mobile":"1rem","space-md":"1rem","space-sm":"0.5rem","space-xl":"2.5rem","space-xs":"0.25rem","space-lg":"1.5rem","margin":"2.5rem","gutter":"1.5rem","margin-mobile":"1rem"},"fontFamily":{"headline-md":["Newsreader"],"body-lg":["Work Sans"],"headline-xl":["Newsreader"],"headline-lg":["Newsreader"],"headline-lg-mobile":["Newsreader"],"body-sm":["Work Sans"],"label-sm":["JetBrains Mono"],"headline-xl-mobile":["Newsreader"],"body-md":["Work Sans"],"label-md":["JetBrains Mono"],"headline-sm":["Newsreader"]},"fontSize":{"headline-md":["26px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"headline-xl":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"400"}],"headline-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.015em","fontWeight":"400"}],"headline-lg-mobile":["26px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"20px","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"500"}],"headline-xl-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"400"}],"body-md":["15px",{"lineHeight":"24px","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"500"}],"headline-sm":["20px",{"lineHeight":"26px","fontWeight":"500"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-baseline gap-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-semibold">ForeCastFX</span><span class="text-outline-variant font-body-sm font-light">/</span><h1 class="font-headline-sm text-headline-sm text-on-surface italic">Charts</h1></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface px-gutter-mobile"><div class="flex flex-col w-full space-y-space-md">
+<!-- 1. Sub-header Desk Ticker Strip -->
+<div class="flex items-center justify-between pb-space-xs border-b border-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+<span class="tracking-widest uppercase font-semibold text-on-surface">INTERMARKET DESK • REAL-TIME</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant tracking-wider">
+<span>SESSION:</span>
+<span class="text-on-surface font-semibold">NEW YORK</span>
+</div>
+</div>
+<!-- 2. Watchlist Selector (Horizontal Scrolling Pills) -->
+<div class="overflow-x-auto -mx-gutter-mobile px-gutter-mobile py-0.5 no-scrollbar flex items-center gap-space-xs">
+<button class="shrink-0 px-3.5 py-1.5 rounded-DEFAULT bg-primary-container text-on-primary font-label-md text-label-md font-medium tracking-wide shadow-sm flex items-center gap-1">
+<span>DXY</span>
+<span class="text-[9px] text-secondary-fixed-dim">●</span>
+</button>
+<button class="shrink-0 px-3 py-1.5 rounded-DEFAULT bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md font-medium tracking-wide transition-colors">
+      USOIL
+    </button>
+<button class="shrink-0 px-3 py-1.5 rounded-DEFAULT bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md font-medium tracking-wide transition-colors">
+      XAUUSD
+    </button>
+<button class="shrink-0 px-3 py-1.5 rounded-DEFAULT bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md font-medium tracking-wide transition-colors">
+      USD/IDR
+    </button>
+<button class="shrink-0 px-3 py-1.5 rounded-DEFAULT bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md font-medium tracking-wide transition-colors">
+      EURUSD
+    </button>
+<button class="shrink-0 px-3 py-1.5 rounded-DEFAULT bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md font-medium tracking-wide transition-colors">
+      US10Y
+    </button>
+</div>
+<!-- 3. Active Ticker Header Module -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">DXY — US Dollar Index</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">ICE Benchmark Administration • Spot Index</p>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Tier-1 Live</span>
+</div>
+</div>
+<!-- Price and Change Badge -->
+<div class="flex items-baseline justify-between pt-1">
+<div class="flex items-baseline gap-space-sm">
+<span class="font-label-md text-[32px] leading-none font-bold text-on-surface tracking-tight">104.45</span>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-semibold">
+<span class="text-[12px]">↗</span> +0.33 (+0.32%)
+        </span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">USD / Basket</span>
+</div>
+<!-- Monospace Quantitative Stats Strip -->
+<div class="pt-2 border-t border-surface-container-high grid grid-cols-2 gap-y-1.5 gap-x-2 font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center justify-between pr-2 border-r border-surface-container-high">
+<span>Day High</span>
+<span class="font-semibold text-on-surface">104.62</span>
+</div>
+<div class="flex items-center justify-between pl-1">
+<span>Day Low</span>
+<span class="font-semibold text-on-surface">103.95</span>
+</div>
+<div class="flex items-center justify-between pr-2 border-r border-surface-container-high">
+<span>Vol 24h</span>
+<span class="font-semibold text-on-surface">1.42M contracts</span>
+</div>
+<div class="flex items-center justify-between pl-1">
+<span>Z-Score</span>
+<span class="font-semibold text-secondary">+1.18 σ</span>
+</div>
+</div>
+</div>
+<!-- 4. Timeframe Selector Strip -->
+<div class="flex items-center justify-between bg-surface-container-low p-1 rounded-lg">
+<button class="flex-1 py-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors">15m</button>
+<button class="flex-1 py-1 rounded bg-surface-container-lowest text-on-surface font-semibold font-label-sm text-label-sm shadow-sm">1h</button>
+<button class="flex-1 py-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors">4h</button>
+<button class="flex-1 py-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors">1D</button>
+<button class="flex-1 py-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors">1W</button>
+</div>
+<!-- 5. Candlestick Chart Visualization Container -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm space-y-space-xs relative overflow-hidden">
+<!-- Chart Legend & Metadata -->
+<div class="flex items-center justify-between pb-1 border-b border-surface-container-high text-on-surface-variant font-label-sm text-[10px]">
+<div class="flex items-center gap-2">
+<span class="flex items-center gap-1 font-semibold text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> DXY Spot
+        </span>
+<span class="flex items-center gap-1 text-outline">
+<span class="w-2.5 h-[1.5px] bg-[#75777d]"></span> SMA 50
+        </span>
+<span class="flex items-center gap-1 text-surface-tint">
+<span class="w-2.5 h-[1.5px] bg-[#545f73]"></span> EMA 200
+        </span>
+</div>
+<div class="font-label-sm text-secondary font-medium tracking-wide">
+        +0.32% SESSION
+      </div>
+</div>
+<!-- Scalable Candlestick Chart SVG -->
+<div class="w-full h-56 pt-1">
+<svg class="w-full h-full select-none" preserveaspectratio="none" viewbox="0 0 340 180">
+<defs>
+<lineargradient id="volGradBull" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2c694e" stop-opacity="0.55"></stop>
+<stop offset="100%" stop-color="#2c694e" stop-opacity="0.1"></stop>
+</lineargradient>
+<lineargradient id="volGradBear" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#ba1a1a" stop-opacity="0.55"></stop>
+<stop offset="100%" stop-color="#ba1a1a" stop-opacity="0.1"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Reference / Grid Lines -->
+<g opacity="0.65" stroke="#c5c6cd" stroke-dasharray="3,3" stroke-width="0.75">
+<line x1="0" x2="300" y1="20" y2="20"></line>
+<line x1="0" x2="300" y1="55" y2="55"></line>
+<line x1="0" x2="300" y1="90" y2="90"></line>
+<line x1="0" x2="300" y1="125" y2="125"></line>
+</g>
+<!-- Y-Axis Price Labels on Right Margin -->
+<g fill="#45474c" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="start">
+<text x="304" y="23">104.60</text>
+<text x="304" y="58">104.40</text>
+<text x="304" y="93">104.20</text>
+<text x="304" y="128">104.00</text>
+<text fill="#75777d" x="304" y="165">VOL</text>
+</g>
+<!-- Volume Divider Line -->
+<line opacity="0.8" stroke="#c5c6cd" stroke-width="0.8" x1="0" x2="300" y1="145" y2="145"></line>
+<!-- 50 SMA Line (Taupe / Outline Curve) -->
+<path d="M 12 110 Q 55 105, 95 98 T 180 82 T 260 62 T 295 48" fill="none" stroke="#75777d" stroke-dasharray="4,2" stroke-width="1.2"></path>
+<!-- 200 EMA Line (Slate / Surface Tint Curve) -->
+<path d="M 12 122 C 70 120, 130 115, 190 102 C 235 92, 270 82, 295 76" fill="none" stroke="#545f73" stroke-width="1.2"></path>
+<!-- 18 Realistic Sequential Candlesticks (Upward Drift to 104.45) -->
+<!-- Candle 1 (Bull) -->
+<line stroke="#2c694e" stroke-width="1" x1="15" x2="15" y1="112" y2="128"></line>
+<rect fill="#2c694e" height="8" rx="0.5" width="6" x="12" y="116"></rect>
+<rect fill="url(#volGradBull)" height="14" width="6" x="12" y="162"></rect>
+<!-- Candle 2 (Bear) -->
+<line stroke="#ba1a1a" stroke-width="1" x1="31" x2="31" y1="114" y2="132"></line>
+<rect fill="#ba1a1a" height="10" rx="0.5" width="6" x="28" y="117"></rect>
+<rect fill="url(#volGradBear)" height="16" width="6" x="28" y="160"></rect>
+<!-- Candle 3 (Bull) -->
+<line stroke="#2c694e" stroke-width="1" x1="47" x2="47" y1="108" y2="124"></line>
+<rect fill="#2c694e" height="9" rx="0.5" width="6" x="44" y="111"></rect>
+<rect fill="url(#volGradBull)" height="12" width="6" x="44" y="164"></rect>
+<!-- Candle 4 (Bull) -->
+<line stroke="#2c694e" stroke-width="1" x1="63" x2="63" y1="98" y2="116"></line>
+<rect fill="#2c694e" height="10" rx="0.5" width="6" x="60" y="102"></rect>
+<rect fill="url(#volGradBull)" height="20" width="6" x="60" y="156"></rect>
+<!-- Candle 5 (Bear pullback) -->
+<line stroke="#ba1a1a" stroke-width="1" x1="79" x2="79" y1="100" y2="118"></line>
+<rect fill="#ba1a1a" height="9" rx="0.5" width="6" x="76" y="104"></rect>
+<rect fill="url(#volGradBear)" height="8" width="6" x="76" y="168"></rect>
+<!-- Candle 6 (Bull hammer) -->
+<line stroke="#2c694e" stroke-width="1" x1="95" x2="95" y1="95" y2="116"></line>
+<rect fill="#2c694e" height="7" rx="0.5" width="6" x="92" y="97"></rect>
+<rect fill="url(#volGradBull)" height="13" width="6" x="92" y="163"></rect>
+<!-- Candle 7 (Bull impulse) -->
+<line stroke="#2c694e" stroke-width="1" x1="111" x2="111" y1="84" y2="101"></line>
+<rect fill="#2c694e" height="11" rx="0.5" width="6" x="108" y="86"></rect>
+<rect fill="url(#volGradBull)" height="24" width="6" x="108" y="152"></rect>
+<!-- Candle 8 (Bear consolidation) -->
+<line stroke="#ba1a1a" stroke-width="1" x1="127" x2="127" y1="82" y2="96"></line>
+<rect fill="#ba1a1a" height="8" rx="0.5" width="6" x="124" y="85"></rect>
+<rect fill="url(#volGradBear)" height="10" width="6" x="124" y="166"></rect>
+<!-- Candle 9 (Doji / neutral) -->
+<line stroke="#45474c" stroke-width="1" x1="143" x2="143" y1="78" y2="94"></line>
+<rect fill="#45474c" height="2" rx="0.5" width="6" x="140" y="84"></rect>
+<rect fill="url(#volGradBull)" height="6" width="6" x="140" y="170"></rect>
+<!-- Candle 10 (Bull step) -->
+<line stroke="#2c694e" stroke-width="1" x1="159" x2="159" y1="70" y2="87"></line>
+<rect fill="#2c694e" height="12" rx="0.5" width="6" x="156" y="73"></rect>
+<rect fill="url(#volGradBull)" height="18" width="6" x="156" y="158"></rect>
+<!-- Candle 11 (Bull continuation) -->
+<line stroke="#2c694e" stroke-width="1" x1="175" x2="175" y1="64" y2="78"></line>
+<rect fill="#2c694e" height="8" rx="0.5" width="6" x="172" y="67"></rect>
+<rect fill="url(#volGradBull)" height="22" width="6" x="172" y="154"></rect>
+<!-- Candle 12 (Bear wick test) -->
+<line stroke="#ba1a1a" stroke-width="1" x1="191" x2="191" y1="58" y2="76"></line>
+<rect fill="#ba1a1a" height="8" rx="0.5" width="6" x="188" y="63"></rect>
+<rect fill="url(#volGradBear)" height="14" width="6" x="188" y="162"></rect>
+<!-- Candle 13 (Bull recovery) -->
+<line stroke="#2c694e" stroke-width="1" x1="207" x2="207" y1="54" y2="70"></line>
+<rect fill="#2c694e" height="9" rx="0.5" width="6" x="204" y="57"></rect>
+<rect fill="url(#volGradBull)" height="19" width="6" x="204" y="157"></rect>
+<!-- Candle 14 (Bull breakout) -->
+<line stroke="#2c694e" stroke-width="1" x1="223" x2="223" y1="42" y2="60"></line>
+<rect fill="#2c694e" height="12" rx="0.5" width="6" x="220" y="46"></rect>
+<rect fill="url(#volGradBull)" height="28" width="6" x="220" y="148"></rect>
+<!-- Candle 15 (Bear exhaustion) -->
+<line stroke="#ba1a1a" stroke-width="1" x1="239" x2="239" y1="40" y2="58"></line>
+<rect fill="#ba1a1a" height="9" rx="0.5" width="6" x="236" y="44"></rect>
+<rect fill="url(#volGradBear)" height="16" width="6" x="236" y="160"></rect>
+<!-- Candle 16 (Bull consolidation) -->
+<line stroke="#2c694e" stroke-width="1" x1="255" x2="255" y1="42" y2="56"></line>
+<rect fill="#2c694e" height="7" rx="0.5" width="6" x="252" y="45"></rect>
+<rect fill="url(#volGradBull)" height="11" width="6" x="252" y="165"></rect>
+<!-- Candle 17 (Bull power candle) -->
+<line stroke="#2c694e" stroke-width="1" x1="271" x2="271" y1="32" y2="50"></line>
+<rect fill="#2c694e" height="11" rx="0.5" width="6" x="268" y="36"></rect>
+<rect fill="url(#volGradBull)" height="26" width="6" x="268" y="150"></rect>
+<!-- Candle 18 (Current Live Candle at 104.45) -->
+<line stroke="#2c694e" stroke-width="1.2" x1="287" x2="287" y1="28" y2="46"></line>
+<rect class="animate-pulse" fill="#2c694e" height="10" rx="0.5" width="6" x="284" y="32"></rect>
+<rect fill="url(#volGradBull)" height="23" width="6" x="284" y="153"></rect>
+<!-- Live Price Guideline across current candle close -->
+<line opacity="0.8" stroke="#2c694e" stroke-dasharray="2,2" stroke-width="1" x1="0" x2="284" y1="42" y2="42"></line>
+<!-- Live Marker Tag -->
+<rect fill="#2c694e" height="13" rx="2" width="52" x="285" y="38"></rect>
+<text fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" x="288" y="48">104.45 ◀</text>
+</svg>
+</div>
+<!-- Live Candle Timestamp Footer -->
+<div class="flex items-center justify-between pt-1 font-label-sm text-[10px] text-on-surface-variant">
+<span>11:00 EST</span>
+<span>12:00 EST</span>
+<span>13:00 EST</span>
+<span class="font-semibold text-secondary">14:00 (LIVE)</span>
+</div>
+</div>
+<!-- 6. Macro Correlation & Thesis Brief -->
+<div class="relative bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm pl-space-md">
+<!-- Forest Sage Vertical Accent Stripe -->
+<div class="absolute left-0 top-3 bottom-3 w-1 bg-secondary rounded-r"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">psychology_alt</span>
+<h3 class="font-headline-sm text-[17px] text-on-surface italic font-medium">Macro Correlation Thesis</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Model: FX-4α</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+      DXY demonstrates strong inverse correlation (<span class="font-label-sm text-label-sm font-semibold text-error">-0.84</span>) with Gold (XAUUSD) post-CPI model recalculation. Real-yield curve steepening systematically supports dollar momentum heading into the New York cash close.
+    </p>
+<!-- Key Quantitative Indicator Pills -->
+<div class="flex flex-wrap items-center gap-space-xs pt-1">
+<div class="px-2.5 py-1 rounded bg-surface-container-low font-label-sm text-label-sm text-on-surface flex items-center gap-1">
+<span class="text-on-surface-variant">USD/Yield Beta:</span>
+<span class="font-semibold">0.72</span>
+</div>
+<div class="px-2.5 py-1 rounded bg-secondary/10 font-label-sm text-label-sm text-secondary font-semibold flex items-center gap-1">
+<span>Bias:</span>
+<span class="tracking-wide uppercase">BULLISH ACCUMULATION</span>
+</div>
+</div>
+</div>
+<!-- 7. TradingView Deep-Link Action Button -->
+<button class="w-full bg-surface-container-lowest active:bg-surface-container transition-all p-space-md rounded-xl shadow-sm flex items-center justify-between text-left group">
+<div class="flex items-center gap-space-sm">
+<!-- Tactile Minimal Logo / Chart Icon Badge -->
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">show_chart</span>
+</div>
+<div>
+<div class="font-headline-sm text-[16px] text-on-surface font-semibold group-hover:text-primary transition-colors">
+          Open full chart in TradingView
+        </div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">
+          Advanced indicators • Multi-layout pine scripts
+        </div>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:translate-x-0.5 transition-transform">
+      arrow_forward
+    </span>
+</button>
+<!-- 8. Floating AI Assistant Trigger Component -->
+<div class="sticky bottom-20 z-40 self-end flex items-center gap-2 pr-1 pointer-events-auto">
+<!-- Editorial Speech Tag -->
+<div class="bg-surface-container-lowest text-on-surface font-body-sm text-body-sm px-3 py-1.5 rounded-xl shadow-md border-0 flex items-center gap-1.5 animate-bounce" style="animation-duration: 3s;">
+<span class="font-medium">Ada yang bisa aku bantu?</span>
+<span class="text-[14px]">✨</span>
+</div>
+<!-- Circular Dark Sparkle Action Button -->
+<button aria-label="ForeCastFX AI Assistant" class="w-12 h-12 rounded-full bg-primary text-on-primary shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[22px] text-secondary-fixed">auto_awesome</span>
+</button>
+</div>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.03)]" data-active-classes="text-on-surface font-semibold bg-surface-container-high/60"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant transition-colors rounded" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="font-label-sm text-label-sm tracking-wider uppercase">Dashboard</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 transition-colors rounded text-on-surface font-semibold bg-surface-container-high/60" data-path="charts" href="#"><span class="material-symbols-outlined text-[20px]">candlestick_chart</span><span class="font-label-sm text-label-sm tracking-wider uppercase">Charts</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant transition-colors rounded" data-path="calendar" href="#"><span class="material-symbols-outlined text-[20px]">calendar_today</span><span class="font-label-sm text-label-sm tracking-wider uppercase">Calendar</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant transition-colors rounded" data-path="news" href="#"><span class="material-symbols-outlined text-[20px]">newspaper</span><span class="font-label-sm text-label-sm tracking-wider uppercase">News</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant transition-colors rounded" data-path="history" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span class="font-label-sm text-label-sm tracking-wider uppercase">History</span></a></div></nav></body></html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fff8f5;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 350,'GRAD' 0,'opsz' 24;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary": "#ffffff", "on-primary-fixed-variant": "#3c475a", "on-error": "#ffffff", "secondary-fixed-dim": "#95d4b3", "surface-bright": "#fff8f5", "background": "#fff8f5", "outline": "#75777d", "surface": "#fff8f5", "secondary": "#2c694e", "surface-container-highest": "#e9e1dd", "error": "#ba1a1a", "on-secondary-fixed-variant": "#0e5138", "surface-container-high": "#eee7e3", "on-secondary-fixed": "#002114", "on-tertiary": "#ffffff", "secondary-container": "#aeeecb", "on-background": "#1e1b19", "inverse-on-surface": "#f7efeb", "secondary-fixed": "#b1f0ce", "on-primary": "#ffffff", "tertiary-container": "#5a0007", "on-tertiary-fixed-variant": "#852221", "on-tertiary-fixed": "#410004", "on-primary-fixed": "#111c2d", "on-surface": "#1e1b19", "on-error-container": "#93000a", "on-primary-container": "#8590a6", "primary": "#091426", "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#bcc7de", "surface-dim": "#e0d8d5", "surface-variant": "#e9e1dd", "inverse-surface": "#33302d", "error-container": "#ffdad6", "primary-container": "#1e293b", "inverse-primary": "#bcc7de", "outline-variant": "#c5c6cd", "surface-container-low": "#faf2ee", "on-secondary-container": "#316e52", "tertiary-fixed-dim": "#ffb3ad", "surface-container": "#f4ece8", "on-tertiary-container": "#e66962", "surface-tint": "#545f73", "primary-fixed": "#d8e3fb", "on-surface-variant": "#45474c", "tertiary-fixed": "#ffdad7", "tertiary": "#330002" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "1rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "space-xl": "2.5rem", "margin": "2.5rem", "space-md": "1rem", "gutter": "1.5rem", "margin-mobile": "1rem" }, fontFamily: { "headline-xl": ["Newsreader"], "body-lg": ["Work Sans"], "headline-lg-mobile": ["Newsreader"], "headline-sm": ["Newsreader"], "label-md": ["JetBrains Mono"], "body-sm": ["Work Sans"], "label-sm": ["JetBrains Mono"], "headline-lg": ["Newsreader"], "headline-md": ["Newsreader"], "body-md": ["Work Sans"], "headline-xl-mobile": ["Newsreader"] }, fontSize: { "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400" }], "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "500" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }], "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }], "headline-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "400" }], "headline-md": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-xl-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen selection:bg-secondary-fixed selection:text-on-secondary-fixed"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-center gap-space-sm"><h1 class="font-headline-sm text-headline-sm text-on-surface tracking-tight select-none">Market News Insights</h1></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span></button><a aria-label="Profile" class="w-11 h-11 flex items-center justify-center" data-path="profile" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></a></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface"><div class="flex flex-col w-full">
+<!-- Sub-Header Desk Ticker / Telemetry -->
+<section class="w-full bg-surface-container-low px-gutter-mobile py-2.5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium uppercase tracking-wider">Editorial Dispatch</span>
+<span class="text-on-surface-variant/40 text-[10px]">•</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">EDITION 842</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium tracking-tight uppercase">Live Sync • 14 Feeds</span>
+</div>
+</section>
+<!-- Segmented Feed Switch & Filter Bar -->
+<section class="w-full px-gutter-mobile pt-4 pb-2 flex flex-col gap-3">
+<!-- Segmented Pill Switch -->
+<div class="w-full p-1 bg-surface-container rounded-lg flex items-center shadow-sm">
+<button class="flex-1 py-2 px-3 rounded bg-primary text-on-primary font-label-md text-label-md transition-all text-center font-medium shadow-sm" id="btn-editorial">
+        Editorial Analysis
+      </button>
+<button class="flex-1 py-2 px-3 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all text-center flex items-center justify-center gap-1.5" id="btn-livewire">
+<span>Live Macro Feed</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-semibold">28</span>
+</button>
+</div>
+<!-- Filter Topic Chips (Horizontal Scrollable) -->
+<div class="w-full flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-nowrap">
+<button class="px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm transition-transform active:scale-95 shadow-sm">
+        All Topics
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors shadow-sm">
+        Central Banks
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors shadow-sm">
+        Commodities
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors shadow-sm">
+        FX Volatility
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors shadow-sm">
+        Geopolitics
+      </button>
+</div>
+</section>
+<!-- Editorial Articles Stream -->
+<div class="w-full px-gutter-mobile flex flex-col gap-space-lg mt-2">
+<!-- Lead Feature Card -->
+<article class="w-full bg-surface-container-high rounded-xl p-space-md flex flex-col gap-3 shadow-md relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-semibold tracking-wider text-secondary uppercase bg-secondary-fixed/50 px-2 py-0.5 rounded">
+          Fed Policy &amp; Inflation
+        </span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<button aria-label="Save analysis" class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+</button>
+<button aria-label="Share article" class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-tight font-serif">
+        Why Rising Oil Prices Could Keep US Dollar Elevated Ahead of CPI
+      </h2>
+<!-- Feature Visual Graphic / Diagram -->
+<div class="w-full flex flex-col gap-1.5">
+<div class="w-full h-48 rounded-lg overflow-hidden bg-surface-container relative shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Editorial financial diagram illustrating the oil-economy-inflation feedback loop. Clean line art showing oil drums connecting with directional arrows to currency symbols for Euro, Dollar, and Yen, leading up to an ascending inflation trend chart with percentage bars on warm archival cream paper in a minimalist broadsheet infographic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAy-6LKTwKrFWbe5YmEJolf-KhVVsl7b-Lez1RJYyVtyJlqTIFITACiVYBkAb3BHBmfx0hq_4YfMjidYkZTGnMzZ3lM4p-oxNOJqXXQrToFTgg3zsf4xVeIAa9tqtvBKavOgN4ylL0XvVbA5T-XDT_Jj1YNDM0_89i19BsggDu6WUqdY1OzNcqtaSpSkTrmdCebmkMcTyrnL6LYz1Q_t-apNHsPzt8XKRiNL6c1LH2"/>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant/80 italic">
+          Fig. 1 — Supply shock transmission to core yield differentials and CPI impulses.
+        </p>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+        Surging Brent crude and refined distillates pass-through threatens to reignite second-round core PCE pressures, cementing institutional bias for sustained dollar strength into the Fed rate blackout.
+      </p>
+<!-- Byline & Telemetry -->
+<div class="w-full pt-2 flex items-center justify-between bg-surface-container-high text-on-surface-variant">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm">
+<span class="font-medium text-on-surface">ForeCastFX Research Desk</span>
+<span>•</span>
+<span>4 min read</span>
+<span>•</span>
+<span>2h ago</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-medium flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> High Impact
+        </span>
+</div>
+</article>
+<!-- Subsequent Article Rows / Feed Listing -->
+<div class="w-full flex flex-col gap-3">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">
+          Wire Commentary &amp; In-Depth
+        </span>
+<span class="font-label-sm text-label-sm text-primary font-medium">Sorted by Velocity</span>
+</div>
+<!-- Article Row 1 -->
+<article class="w-full p-3.5 bg-surface-container-low rounded-xl shadow-sm flex items-start justify-between gap-3">
+<div class="flex-1 flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-tertiary-container font-semibold uppercase tracking-wide">
+              ECB Desk • Rate Cut Cycle
+            </span>
+</div>
+<h3 class="font-headline-sm text-[16px] leading-snug font-serif text-on-surface line-clamp-2">
+            Eurozone Disinflation Halts: Lagarde Hints at Pause Amid Service Wage Stickiness
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-0.5">
+            Services PMI pricing index rebounded to 52.4, challenging market pricing for back-to-back 25bps reductions.
+          </p>
+<div class="flex items-center gap-2 mt-1.5 font-label-sm text-label-sm text-on-surface-variant/80">
+<span>Macro Wire</span>
+<span>•</span>
+<span>3h ago</span>
+<span>•</span>
+<span>3 min read</span>
+</div>
+</div>
+<div class="w-[76px] h-[76px] shrink-0 rounded-lg overflow-hidden bg-surface-container shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Monochrome architectural photograph of grand neoclassical central bank columns and stone portico in sharp directional morning light, evocative of the European Central Bank institutional authority, shot in 35mm editorial film style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOS7ufcGKCcA1sfzHZGg94bi7uAM_TU-gmJGM4CD38jjpGe524rI64TnHfHvy58J0T2vCAVugI6cKhvmThIyMaof99Kh1zHp7D20brkEi8HpTAoZsUYjC7c3aPMlS7wi2k4w6XtkxlIp1ndGWhM96QNFthxwOAaZaD4va5jm7NSo5qykOW_TxE3JiKYBrSfJlZS7kmK5qof6pJoUECI4BWGF5gRgtokeRXVLkfOPqN"/>
+</div>
+</article>
+<!-- Article Row 2 -->
+<article class="w-full p-3.5 bg-surface-container-low rounded-xl shadow-sm flex items-start justify-between gap-3">
+<div class="flex-1 flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wide">
+              Intermarket Correlation
+            </span>
+</div>
+<h3 class="font-headline-sm text-[16px] leading-snug font-serif text-on-surface line-clamp-2">
+            DXY vs Gold Decoupling: Real Yields Dictate Safe-Haven Capital Allocations
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-0.5">
+            Traditional inverse betas fracture as sovereign reserve accumulation offsets US 10-year real yield pressure.
+          </p>
+<div class="flex items-center gap-2 mt-1.5 font-label-sm text-label-sm text-on-surface-variant/80">
+<span>Institutional Quant</span>
+<span>•</span>
+<span>5h ago</span>
+<span>•</span>
+<span>5 min read</span>
+</div>
+</div>
+<div class="w-[76px] h-[76px] shrink-0 rounded-lg overflow-hidden bg-surface-container shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Editorial chart on textured paper displaying EUR USD currency pair trends with clear coordinate axes, dual line graphs illustrating Euro strength and USD retreat, marked with key peaks and support milestones in dark blue ink." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnATTdo7qsujyoEHYf6Tj7Boib2P-CA6BWTwaUbneKqdocv16-KEITWiHHqPy7xYG6NQJxH65I_b4tKfRCbFBaHibeyeDHwyQdAd7LEP9uv2frTsmNjDAs7LsoXi6HxLGDK3fQEkFw159hLKLdLHsjEYR3oWsvobD_6QowSjgx3CgB3D9V1OYL0rZHqb1TpalL6iYXEYRiYd_B9P5wXYhCeJ-cqEtQ70xTMO98rTmY"/>
+</div>
+</article>
+<!-- Article Row 3 -->
+<article class="w-full p-3.5 bg-surface-container-low rounded-xl shadow-sm flex items-start justify-between gap-3">
+<div class="flex-1 flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed-variant font-semibold uppercase tracking-wide">
+              Asia FX • Bank of Japan
+            </span>
+</div>
+<h3 class="font-headline-sm text-[16px] leading-snug font-serif text-on-surface line-clamp-2">
+            Yen Intervention Watch: MoF Signals Displeasure at 155.00 Threshold
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-0.5">
+            Verbal warnings escalate as USD/JPY volatility skew points to acute downside tail hedging across institutional options books.
+          </p>
+<div class="flex items-center gap-2 mt-1.5 font-label-sm text-label-sm text-on-surface-variant/80">
+<span>Tokyo Bureau</span>
+<span>•</span>
+<span>7h ago</span>
+<span>•</span>
+<span>2 min read</span>
+</div>
+</div>
+<!-- Live Quantitative Badge & Volatility Telemetry -->
+<div class="w-[76px] h-[76px] shrink-0 rounded-lg bg-surface-container flex flex-col items-center justify-center p-1 text-center shadow-sm">
+<span class="font-label-sm text-[10px] text-on-surface-variant tracking-tighter uppercase font-semibold">USD/JPY</span>
+<span class="font-label-md text-label-md font-semibold text-secondary mt-0.5">+0.42%</span>
+<span class="font-label-sm text-[9px] text-on-surface-variant mt-0.5 font-mono">154.88</span>
+</div>
+</article>
+</div>
+<!-- Curated Pull Quote / Macro Vignette -->
+<aside class="w-full bg-surface-container-high rounded-xl p-space-md flex flex-col gap-2 shadow-sm">
+<div class="flex items-center gap-1.5 text-secondary">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Lead Strategist Quote</span>
+</div>
+<p class="font-headline-sm text-headline-sm italic font-serif text-on-surface leading-snug">
+        “The market is pricing rate symmetry that central bankers simply cannot afford amidst volatile energy pass-through.”
+      </p>
+<div class="w-full flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface font-medium">— Clara Vance, Chief Cross-Asset Strategist</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant font-mono">LONDON DESK</span>
+</div>
+</aside>
+<!-- Editorial Disclaimer & Syndicate Note -->
+<footer class="w-full p-3.5 bg-surface-container rounded-lg shadow-sm flex items-start gap-2.5 mb-4">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] shrink-0 mt-0.5">verified_user</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+        ForeCastFX Dispatches are syndicated exclusively for institutional macro participants. Commentary does not constitute retail investment advice or bilateral transaction solicitation.
+      </p>
+</footer>
+</div>
+</div>
+<script>
+  (function() {
+    const btnEditorial = document.getElementById('btn-editorial');
+    const btnLivewire = document.getElementById('btn-livewire');
+
+    if (btnEditorial && btnLivewire) {
+      btnEditorial.addEventListener('click', () => {
+        btnEditorial.className = "flex-1 py-2 px-3 rounded bg-primary text-on-primary font-label-md text-label-md transition-all text-center font-medium shadow-sm";
+        btnLivewire.className = "flex-1 py-2 px-3 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all text-center flex items-center justify-center gap-1.5";
+      });
+
+      btnLivewire.addEventListener('click', () => {
+        btnLivewire.className = "flex-1 py-2 px-3 rounded bg-primary text-on-primary font-label-md text-label-md transition-all text-center font-medium shadow-sm flex items-center justify-center gap-1.5";
+        btnEditorial.className = "flex-1 py-2 px-3 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all text-center font-medium";
+      });
+    }
+  })();
+</script></main><aside aria-label="AI Financial Intelligence" class="fixed bottom-24 right-gutter-mobile z-40 flex items-center gap-space-sm pointer-events-auto"><div class="bg-surface-container-low/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-[0_1px_8px_rgba(0,0,0,0.06)] flex items-center"><span class="font-label-sm text-label-sm text-on-surface font-medium select-none">Ada yang bisa aku bantu? ✨</span></div><button aria-label="Open ForeCastFX Assistant" class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_4px_12px_rgba(9,20,38,0.25)] hover:bg-primary-container transition-all active:scale-95"><span class="material-symbols-outlined text-[20px]">auto_awesome</span></button></aside><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary font-semibold relative after:content-[''] after:absolute after:bottom-1.5 after:w-1 after:h-1 after:rounded-full after:bg-secondary"><div class="flex justify-around items-center h-16 px-gutter-mobile"><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[22px]">grid_view</span><span class="font-label-sm text-label-sm mt-0.5">Dashboard</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="charts" href="#"><span class="material-symbols-outlined text-[22px]">candlestick_chart</span><span class="font-label-sm text-label-sm mt-0.5">Charts</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="calendar" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-label-sm text-label-sm mt-0.5">Calendar</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] h-12 transition-colors text-primary font-semibold relative after:content-[''] after:absolute after:bottom-1.5 after:w-1 after:h-1 after:rounded-full after:bg-secondary" data-path="market-news-insights" href="#"><span class="material-symbols-outlined text-[22px]">newspaper</span><span class="font-label-sm text-label-sm mt-0.5">News</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="history" href="#"><span class="material-symbols-outlined text-[22px]">history</span><span class="font-label-sm text-label-sm mt-0.5">History</span></a></div></nav></body></html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fff8f5;color:#1e1b19;-webkit-tap-highlight-color:transparent;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-highest": "#e9e1dd", "on-secondary-fixed-variant": "#0e5138", "surface-bright": "#fff8f5", "primary-container": "#1e293b", "tertiary-fixed-dim": "#ffb3ad", "surface-container-high": "#eee7e3", "on-primary-fixed-variant": "#3c475a", "on-surface-variant": "#45474c", "surface-variant": "#e9e1dd", "surface-container": "#f4ece8", "surface-container-low": "#faf2ee", "on-tertiary-fixed-variant": "#852221", "on-surface": "#1e1b19", "tertiary": "#330002", "on-background": "#1e1b19", "tertiary-fixed": "#ffdad7", "on-error": "#ffffff", "on-tertiary": "#ffffff", "outline": "#75777d", "inverse-primary": "#bcc7de", "on-secondary-container": "#316e52", "primary-fixed-dim": "#bcc7de", "on-primary-container": "#8590a6", "on-secondary-fixed": "#002114", "tertiary-container": "#5a0007", "primary": "#091426", "surface-tint": "#545f73", "outline-variant": "#c5c6cd", "on-primary-fixed": "#111c2d", "on-tertiary-fixed": "#410004", "inverse-surface": "#33302d", "background": "#fff8f5", "error": "#ba1a1a", "on-secondary": "#ffffff", "secondary-container": "#aeeecb", "on-tertiary-container": "#e66962", "surface": "#fff8f5", "inverse-on-surface": "#f7efeb", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "primary-fixed": "#d8e3fb", "on-primary": "#ffffff", "surface-dim": "#e0d8d5", "secondary": "#2c694e", "secondary-fixed": "#b1f0ce", "on-error-container": "#93000a", "secondary-fixed-dim": "#95d4b3" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-mobile": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem", "margin-mobile": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "margin": "2.5rem", "space-xs": "0.25rem" }, "fontFamily": { "body-lg": ["Work Sans"], "label-sm": ["JetBrains Mono"], "headline-lg": ["Newsreader"], "label-md": ["JetBrains Mono"], "headline-sm": ["Newsreader"], "headline-lg-mobile": ["Newsreader"], "headline-xl-mobile": ["Newsreader"], "headline-xl": ["Newsreader"], "headline-md": ["Newsreader"], "body-md": ["Work Sans"], "body-sm": ["Work Sans"] }, "fontSize": { "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }], "headline-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }], "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "500" }], "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "400" }], "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400" }], "headline-md": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md antialiased min-h-full flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-24 flex flex-col justify-between"><div class="h-14 px-margin-mobile flex items-center justify-between"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface font-medium">ForeCastFX</span><span class="font-label-sm text-label-sm uppercase px-1.5 py-0.5 bg-surface-container text-on-surface-variant">Briefing</span></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-error rounded-full"></span></button><div class="w-11 h-11 flex items-center justify-center"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div><div class="h-10 px-margin-mobile flex items-center justify-between bg-surface-container-low/70"><div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">US Macro Desk • WIB (UTC+7)</span></div><div class="font-label-sm text-label-sm text-on-surface tracking-normal font-medium">1h 54m until release</div></div></div></header><main class="flex-1 flex flex-col relative w-full bg-surface pt-24 pb-20"><div class="flex flex-col w-full relative">
+<!-- Top Editorial Focus Section -->
+<section class="px-margin-mobile pt-space-md pb-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Macro Dossier • Ed. 1,482</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+        ESTABLISHED DISPATCH
+      </span>
+</div>
+<!-- Editorial Lead Block -->
+<div class="bg-surface-container-low p-space-md flex flex-col gap-space-sm relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="flex flex-col gap-1 pl-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">The US CPI MoM Forecast</span>
+<div class="flex items-baseline gap-2 pt-0.5">
+<span class="font-headline-md text-headline-md font-semibold text-secondary tracking-tight">GOOD FOR USD ↗</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-secondary-container text-on-secondary-container font-medium uppercase">Conviction 85%</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface pl-space-xs leading-relaxed">
+        Platform researchers confirm a strong USD rally and XAUUSD pullback expectation based on leading inflationary signals across energy pass-through and services components.
+      </p>
+<!-- Monospace & Metadata Strip -->
+<div class="mt-space-xs pt-space-xs flex flex-col gap-1.5 pl-space-xs bg-surface-container p-2.5">
+<div class="flex items-center justify-between flex-wrap gap-y-1">
+<span class="font-label-sm text-label-sm text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+            Confidence: 85% Consensus
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium tracking-tight" id="countdown-timer">01h : 54m : 54s</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm flex-wrap gap-y-1">
+<span>Distribution: 140 Q-Models</span>
+<span class="text-secondary font-medium">High Conviction Deck</span>
+</div>
+<div class="flex items-center justify-between pt-1 font-label-sm text-[10px] text-on-surface-variant">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-on-secondary-container">bolt</span>
+            REDIS CACHED (120ms)
+          </span>
+<span>Release: Tomorrow, 19:30 WIB</span>
+</div>
+</div>
+<!-- Contextual AI Trigger Button -->
+<button class="mt-1 flex items-center justify-between w-full p-2.5 bg-surface-container-high text-left text-on-surface transition-colors hover:bg-surface-container-highest" type="button">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">psychology</span>
+<span class="font-body-sm text-body-sm font-medium">Ask AI Macro Analyst: Why is USD bullish ahead of CPI?</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Editorial Divider / Pull Line -->
+<div class="px-margin-mobile">
+<div class="h-0.5 bg-surface-container-highest w-full"></div>
+</div>
+<!-- Leading Indicators Breakdown -->
+<section class="px-margin-mobile py-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<h2 class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Leading Indicators &amp; Sub-Index Breakdown</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Weighted Basket</span>
+</div>
+<!-- Indicator Rows -->
+<div class="flex flex-col bg-surface-container-low divide-y divide-surface-container-high">
+<!-- Item 01 -->
+<div class="p-space-md flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">01.</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">USOIL Crude MoM</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 bg-secondary-container text-on-secondary-container font-semibold uppercase tracking-wide">Hawkish</span>
+</div>
+<div class="flex items-center justify-between pl-6">
+<span class="font-label-md text-label-md text-secondary font-medium">+6.5% deviation</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Weight: 35%</span>
+</div>
+<!-- Micro sparkline metric representation -->
+<div class="pl-6 pt-1 flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-container flex">
+<div class="bg-secondary h-full" style="width: 78%;"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Z: +1.8σ</span>
+</div>
+</div>
+<!-- Item 02 -->
+<div class="p-space-md flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">02.</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">ISM Prices Paid</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 bg-secondary-container text-on-secondary-container font-semibold uppercase tracking-wide">Hawkish</span>
+</div>
+<div class="flex items-center justify-between pl-6">
+<span class="font-label-md text-label-md text-on-surface font-medium">55.4 <span class="text-on-surface-variant font-normal">(Prev: 52.8)</span></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Weight: 30%</span>
+</div>
+<div class="pl-6 pt-1 flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-container flex">
+<div class="bg-secondary h-full" style="width: 65%;"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Z: +1.2σ</span>
+</div>
+</div>
+<!-- Item 03 -->
+<div class="p-space-md flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">03.</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Average Hourly Earnings MoM</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 bg-surface-container-highest text-on-surface-variant font-medium uppercase tracking-wide">Neutral-Hawkish</span>
+</div>
+<div class="flex items-center justify-between pl-6">
+<span class="font-label-md text-label-md text-on-surface font-medium">+0.4%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Weight: 20%</span>
+</div>
+<div class="pl-6 pt-1 flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-container flex">
+<div class="bg-outline h-full" style="width: 45%;"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Z: +0.6σ</span>
+</div>
+</div>
+</div>
+<!-- Aggregate Note Bar -->
+<div class="bg-surface-container p-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">analytics</span>
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Aggregate Z-Score: <span class="font-label-md text-secondary font-semibold">+1.42 σ</span></span>
+</div>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 bg-surface-container-high text-on-surface uppercase">High Inflation Pressure</span>
+</div>
+</section>
+<!-- Editorial Divider -->
+<div class="px-margin-mobile">
+<div class="h-0.5 bg-surface-container-highest w-full"></div>
+</div>
+<!-- Intermarket Volatility Row -->
+<section class="px-margin-mobile py-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<h2 class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Intermarket Cross-Asset Reaction</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Real-Time Desk</span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Left Card: DXY -->
+<div class="bg-surface-container-low p-space-sm flex flex-col justify-between h-28 relative">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-medium">DXY</span>
+<span class="font-label-sm text-[10px] text-secondary font-medium flex items-center">
+            +0.48%
+            <span class="material-symbols-outlined text-[12px]">trending_up</span>
+</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">104.82</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant">Dollar Index Spot</span>
+</div>
+<!-- SVG Sparkline -->
+<svg class="w-full h-5 text-secondary overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<polyline fill="none" points="0,18 20,15 35,16 55,10 70,12 85,6 100,2" stroke="currentColor" stroke-width="1.75"></polyline>
+</svg>
+</div>
+<!-- Right Card: XAU/USD -->
+<div class="bg-surface-container-low p-space-sm flex flex-col justify-between h-28 relative">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-medium">XAU / USD</span>
+<span class="font-label-sm text-[10px] text-tertiary-container font-medium flex items-center">
+            -1.15%
+            <span class="material-symbols-outlined text-[12px]">trending_down</span>
+</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">$2,318.40</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant">Gold Spot (Oz)</span>
+</div>
+<!-- SVG Sparkline -->
+<svg class="w-full h-5 text-error overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<polyline fill="none" points="0,3 18,5 40,8 60,7 75,14 90,12 100,18" stroke="currentColor" stroke-width="1.75"></polyline>
+</svg>
+</div>
+</div>
+</section>
+<!-- Primary Actions & Alert Controls -->
+<section class="px-margin-mobile pt-space-xs pb-space-lg flex flex-col gap-space-sm">
+<button class="w-full py-3.5 px-space-md bg-primary text-on-primary font-headline-sm text-[16px] tracking-wide flex items-center justify-center gap-2 hover:bg-primary-container transition-colors shadow-sm active:scale-[0.99]" type="button">
+<span>View Full CPI Model Weights</span>
+<span class="material-symbols-outlined text-[18px]">east</span>
+</button>
+<div class="flex items-center justify-center gap-4 pt-1">
+<button class="flex items-center gap-1.5 text-on-surface hover:text-primary transition-colors py-2 px-3" type="button">
+<span class="material-symbols-outlined text-[16px]">notifications_active</span>
+<span class="font-body-sm text-body-sm font-medium">Set Alert Window (±15m)</span>
+</button>
+<span class="text-outline-variant">•</span>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors py-2" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span class="font-body-sm text-body-sm">Export Memo</span>
+</button>
+</div>
+</section>
+<!-- Editorial Pull Quote / Desk Disclaimer -->
+<section class="px-margin-mobile pb-space-xl">
+<div class="border-l-2 border-on-surface-variant pl-space-md py-1 bg-surface-container-low">
+<p class="font-headline-sm text-[14px] italic text-on-surface-variant leading-snug">
+        "Expect heightened intraday dispersion across FX majors. Forward yield curves maintain hawkish pricing skew until Core services show structural normalization."
+      </p>
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider mt-1.5">— Chief Quantitative Strategist, London Desk</span>
+</div>
+</section>
+<!-- Floating Editorial AI Assistant Trigger -->
+<div class="fixed right-4 bottom-20 z-40 flex items-center gap-2">
+<!-- Verbatim Indonesian Speech Bubble -->
+<div class="bg-surface-container-lowest px-3 py-1.5 shadow-sm flex items-center gap-1.5 animate-bounce" style="animation-duration: 3s;">
+<span class="font-body-sm text-body-sm font-medium text-on-surface whitespace-nowrap">Ada yang bisa aku bantu? ✨</span>
+<div class="w-1.5 h-1.5 bg-surface-container-lowest rotate-45 absolute -right-0.5 top-1/2 -translate-y-1/2 hidden"></div>
+</div>
+<!-- Circular Avatar Trigger -->
+<button aria-label="Open AI Macro Desk" class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-md hover:scale-105 active:scale-95 transition-transform relative">
+<span class="material-symbols-outlined text-[22px] text-secondary-fixed">auto_awesome</span>
+<span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-secondary rounded-full"></span>
+</button>
+</div>
+</div>
+<script>
+  // Dynamic countdown simulator for realism
+  (function() {
+    let totalSeconds = (1 * 3600) + (54 * 60) + 54;
+    const timerEl = document.getElementById('countdown-timer');
+    if (!timerEl) return;
+
+    setInterval(() => {
+      if (totalSeconds <= 0) return;
+      totalSeconds--;
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      const pad = (n) => n.toString().padStart(2, '0');
+      timerEl.textContent = `${pad(hours)}h : ${pad(minutes)}m : ${pad(seconds)}s`;
+    }, 1000);
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.03)]" data-active-classes="text-on-surface font-medium border-b-2 border-on-surface"><div class="flex items-center justify-around h-16 px-space-xs"><a aria-current="page" class="flex flex-col items-center justify-center h-full flex-1 min-w-[44px] transition-colors text-on-surface font-medium border-b-2 border-on-surface" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-headline-sm text-[11px] leading-tight mt-0.5 tracking-tight">Dashboard</span></a><a class="flex flex-col items-center justify-center h-full flex-1 min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="charts" href="#"><span class="material-symbols-outlined text-[20px]">candlestick_chart</span><span class="font-label-sm text-[10px] uppercase leading-tight mt-0.5 tracking-wider">Charts</span></a><a class="flex flex-col items-center justify-center h-full flex-1 min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="calendar" href="#"><span class="material-symbols-outlined text-[20px]">calendar_today</span><span class="font-label-sm text-[10px] uppercase leading-tight mt-0.5 tracking-wider">Calendar</span></a><a class="flex flex-col items-center justify-center h-full flex-1 min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="news" href="#"><span class="material-symbols-outlined text-[20px]">newspaper</span><span class="font-label-sm text-[10px] uppercase leading-tight mt-0.5 tracking-wider">News</span></a><a class="flex flex-col items-center justify-center h-full flex-1 min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="history" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span class="font-label-sm text-[10px] uppercase leading-tight mt-0.5 tracking-wider">History</span></a></div></nav></body></html>
