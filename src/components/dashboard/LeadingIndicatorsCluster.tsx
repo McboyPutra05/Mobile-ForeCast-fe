@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Droplet, Factory, Users, TrendingUp, Info } from 'lucide-react-native';
+import { Info } from 'lucide-react-native';
 import { Badge } from '../common/Badge';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { EditorialDivider } from '../common/EditorialDivider';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { LeadingIndicatorItem } from '../../types';
 
 interface LeadingIndicatorsClusterProps {
@@ -17,197 +18,163 @@ export const LeadingIndicatorsCluster: React.FC<LeadingIndicatorsClusterProps> =
   zScoreDeviation,
   onInfoPress,
 }) => {
-  const getIndicatorIcon = (name: string, index: number) => {
-    const lower = name.toLowerCase();
-    if (lower.includes('oil') || lower.includes('crude') || lower.includes('energy')) {
-      return <Droplet size={16} color={COLORS.alertWarning} />;
-    }
-    if (lower.includes('ism') || lower.includes('price') || lower.includes('pmi')) {
-      return <Factory size={16} color={COLORS.sentimentBullish} />;
-    }
-    if (lower.includes('job') || lower.includes('pay') || lower.includes('employment') || lower.includes('adp')) {
-      return <Users size={16} color={COLORS.alertInfo} />;
-    }
-    return <TrendingUp size={16} color={index % 2 === 0 ? COLORS.sentimentBullish : COLORS.alertWarning} />;
-  };
+  const colors = useThemeColors();
 
   return (
-    <View style={styles.indicatorsCluster}>
-      <View style={styles.clusterHeader}>
-        <View style={styles.clusterTitleRow}>
-          <Text style={styles.clusterTitle}>Leading Indicators Cluster</Text>
-          <Pressable
-            onPress={onInfoPress}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            accessibilityRole="button"
-            accessibilityLabel="View Indicator Details"
-          >
-            <Info size={16} color={COLORS.textSecondary} />
-          </Pressable>
-        </View>
-        <View style={styles.inputsBadge}>
-          <Text style={styles.inputsBadgeText}>{indicators.length} Vectors Synthesized</Text>
-        </View>
-      </View>
-
-      {/* List of Indicators */}
-      {indicators.map((item, idx) => {
-        const isHawkish = item.sentiment_impact.toUpperCase().includes('HAWKISH');
-        return (
-          <View key={idx} style={styles.indicatorCard}>
-            <View style={styles.indicatorLeft}>
-              <View style={styles.indicatorIconWrapper}>
-                {getIndicatorIcon(item.name, idx)}
-              </View>
-              <View style={styles.indicatorDetails}>
-                <Text style={styles.indicatorName} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text style={styles.indicatorWeight}>
-                  Weight (w_i): {Math.round(item.weight * 100)}% | Dev: +{item.deviation_score}σ
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.indicatorRight}>
-              <Text style={styles.indicatorDeviation}>
-                {item.actual}{' '}
-                <Text style={styles.indicatorPrev}>({item.previous})</Text>
-              </Text>
-              <Badge
-                label={item.sentiment_impact}
-                variant={isHawkish ? 'bullish' : 'bearish'}
-                size="sm"
-              />
-            </View>
-          </View>
-        );
-      })}
-
-      {/* Aggregate Z-Score Summary Banner */}
-      <View style={styles.zScoreBanner}>
-        <View style={styles.zScoreLeft}>
-          <View style={styles.sigmaBadge}>
-            <Text style={styles.sigmaText}>σ</Text>
-          </View>
-          <Text style={styles.zScoreLabel}>
-            Aggregate Z-Score: <Text style={styles.zScoreValue}>+{zScoreDeviation} σ</Text>
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <View>
+          <Text style={[styles.sectionKicker, { color: colors.textMuted }]}>
+            LEADING INDICATORS BREAKDOWN
+          </Text>
+          <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
+            {indicators.length} weighted macro inputs
           </Text>
         </View>
-        <View style={styles.zScoreTag}>
-          <Text style={styles.zScoreTagText}>High Inflation Pressure</Text>
+        <Pressable
+          style={({ pressed }) => [styles.infoBtn, pressed && { opacity: 0.7 }]}
+          onPress={onInfoPress}
+          accessibilityRole="button"
+          accessibilityLabel="Inspect leading indicator weighting formula"
+        >
+          <Info size={18} color={colors.textSecondary} />
+        </Pressable>
+      </View>
+
+      <EditorialDivider />
+
+      <View>
+        {indicators.map((item, idx) => {
+          const isHawkish = item.sentiment_impact.toUpperCase().includes('HAWKISH');
+          const isLast = idx === indicators.length - 1;
+
+          return (
+            <View key={`${item.name}-${idx}`}>
+              <View style={styles.row}>
+                <View style={styles.rowLeft}>
+                  <Text style={[styles.indicatorName, { color: colors.textPrimary }]}>
+                    {item.name}
+                  </Text>
+                  <Text style={[styles.indicatorMeta, { color: colors.textSecondary }]}>
+                    Weight: {Math.round(item.weight * 100)}% • Z-Dev: +{item.deviation_score.toFixed(2)}σ
+                  </Text>
+                </View>
+
+                <View style={styles.rowRight}>
+                  <Text style={[styles.actualVal, { color: colors.textPrimary }]}>
+                    {item.actual}{' '}
+                    <Text style={[styles.prevVal, { color: colors.textMuted }]}>
+                      (Prev {item.previous})
+                    </Text>
+                  </Text>
+                  <Badge
+                    label={item.sentiment_impact}
+                    variant={isHawkish ? 'bullish' : 'bearish'}
+                    size="sm"
+                  />
+                </View>
+              </View>
+              {!isLast && <EditorialDivider dashed />}
+            </View>
+          );
+        })}
+      </View>
+
+      <View
+        style={[
+          styles.zScoreBar,
+          {
+            backgroundColor: colors.surfaceCard,
+            borderColor: colors.borderSubtle,
+          },
+        ]}
+      >
+        <View style={styles.zScoreLeft}>
+          <Text style={[styles.zScoreLabel, { color: colors.textSecondary }]}>
+            Aggregate Z-Score
+          </Text>
+          <Text style={[styles.zScoreValue, { color: colors.sentimentBullish }]}>
+            +{zScoreDeviation.toFixed(2)} σ
+          </Text>
         </View>
+        <Badge label="High Inflation Pressure" variant="warning" size="sm" />
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  indicatorsCluster: {
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
-    padding: 16,
+  section: {
     gap: 10,
   },
-  clusterHeader: {
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
   },
-  clusterTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  clusterTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  inputsBadge: {
-    backgroundColor: COLORS.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-  },
-  inputsBadgeText: {
+  sectionKicker: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
-    color: COLORS.sentimentBullish,
+    letterSpacing: 1.0,
   },
-  indicatorCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceElevated,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    padding: 10,
+  sectionSub: {
+    fontFamily: FONTS.sans,
+    fontSize: 12,
+    marginTop: 2,
   },
-  indicatorLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  indicatorIconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    alignItems: 'center',
+  infoBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
-  indicatorDetails: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 11,
+    gap: 12,
+  },
+  rowLeft: {
     flex: 1,
+    gap: 3,
   },
   indicatorName: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textPrimary,
   },
-  indicatorWeight: {
+  indicatorMeta: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
-    color: COLORS.textSecondary,
-    marginTop: 2,
+    fontSize: 11,
+    ...TABULAR_NUMS,
   },
-  indicatorRight: {
+  rowRight: {
     alignItems: 'flex-end',
-    gap: 4,
+    gap: 5,
   },
-  indicatorDeviation: {
+  actualVal: {
     fontFamily: FONTS.mono,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    ...TABULAR_NUMS,
   },
-  indicatorPrev: {
+  prevVal: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '400',
-    color: COLORS.textMuted,
   },
-  zScoreBanner: {
+  zScoreBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceSecondary,
+    flexWrap: 'wrap',
+    gap: 8,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    padding: 10,
-    borderRadius: 10,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     marginTop: 4,
   },
   zScoreLeft: {
@@ -215,47 +182,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  sigmaBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    backgroundColor: COLORS.sentimentBullishSubtle,
-    borderWidth: 1,
-    borderColor: COLORS.sentimentBullishBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sigmaText: {
-    fontFamily: FONTS.mono,
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.sentimentBullish,
-  },
   zScoreLabel: {
     fontFamily: FONTS.sans,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textPrimary,
   },
   zScoreValue: {
     fontFamily: FONTS.mono,
-    color: COLORS.sentimentBullish,
+    fontSize: 14,
     fontWeight: '700',
-  },
-  zScoreTag: {
-    backgroundColor: COLORS.alertWarningSubtle,
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.35)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  zScoreTagText: {
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    fontWeight: '600',
-    color: COLORS.alertWarning,
+    ...TABULAR_NUMS,
   },
 });
-
-

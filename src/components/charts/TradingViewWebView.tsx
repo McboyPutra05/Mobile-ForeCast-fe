@@ -1,9 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Linking, Pressable, Text } from 'react-native';
+import React, { useRef, useEffect, useMemo } from 'react';
+import { View, StyleSheet, Linking, Pressable } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { ExternalLink } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { CandleData, MarketSymbol } from '../../types';
 
 interface TradingViewWebViewProps {
@@ -16,12 +15,12 @@ interface TradingViewWebViewProps {
 export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
   symbol,
   candles,
-  height = 240,
+  height = 250,
   onOpenTradingViewApp,
 }) => {
   const webViewRef = useRef<WebView | null>(null);
+  const colors = useThemeColors();
 
-  // Sync candle updates to WebView via injectJavaScript
   useEffect(() => {
     if (candles && candles.length > 0 && webViewRef.current) {
       const script = `
@@ -41,7 +40,7 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
         openTradingViewApp(data.symbol || symbol);
       }
     } catch {
-      // ignore
+      // Ignore malformed WebView bridge payloads
     }
   };
 
@@ -51,7 +50,6 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
       return;
     }
 
-    // Mapping symbol to TradingView ticker query
     let tvSymbol = sym;
     if (sym === 'DXY') tvSymbol = 'INDEX:DXY';
     if (sym === 'USOIL') tvSymbol = 'TVC:USOIL';
@@ -73,14 +71,15 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
     }
   };
 
-  const htmlContent = `
+  const htmlContent = useMemo(() => {
+    return `
     <!DOCTYPE html>
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <style>
           * { box-sizing: border-box; margin: 0; padding: 0; }
-          body, html { width: 100%; height: 100%; background-color: #151A23; overflow: hidden; }
+          body, html { width: 100%; height: 100%; background-color: ${colors.bgApp}; overflow: hidden; }
           #chart-container { width: 100%; height: 100%; }
         </style>
         <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -91,47 +90,49 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
           const container = document.getElementById('chart-container');
           const chart = LightweightCharts.createChart(container, {
             layout: {
-              background: { color: '#151A23' },
-              textColor: '#9CA3AF',
+              background: { color: '${colors.bgApp}' },
+              textColor: '${colors.textSecondary}',
               fontFamily: 'JetBrainsMono, monospace',
               fontSize: 10,
             },
             grid: {
-              vertLines: { color: '#1F2937', style: 1 },
-              horzLines: { color: '#1F2937', style: 1 },
+              vertLines: { color: '${colors.borderSubtle}', style: 1 },
+              horzLines: { color: '${colors.borderSubtle}', style: 1 },
             },
             crosshair: {
               mode: LightweightCharts.CrosshairMode.Normal,
-              vertLine: { color: '#4B5563', width: 1, style: 2 },
-              horzLine: { color: '#4B5563', width: 1, style: 2 },
+              vertLine: { color: '${colors.borderActive}', width: 1, style: 2 },
+              horzLine: { color: '${colors.borderActive}', width: 1, style: 2 },
             },
             rightPriceScale: {
-              borderColor: '#1F2937',
-              scaleMargins: { top: 0.1, bottom: 0.1 },
+              borderColor: '${colors.borderSubtle}',
+              scaleMargins: { top: 0.12, bottom: 0.12 },
             },
             timeScale: {
-              borderColor: '#1F2937',
+              borderColor: '${colors.borderSubtle}',
               timeVisible: true,
               secondsVisible: false,
             },
           });
 
           const candleSeries = chart.addCandlestickSeries({
-            upColor: '#10B981',
-            downColor: '#EF4444',
+            upColor: '${colors.sentimentBullish}',
+            downColor: '${colors.sentimentBearish}',
             borderVisible: false,
-            wickUpColor: '#10B981',
-            wickDownColor: '#EF4444',
+            wickUpColor: '${colors.sentimentBullish}',
+            wickDownColor: '${colors.sentimentBearish}',
           });
 
           const initialData = ${JSON.stringify(candles)};
           if (initialData && initialData.length > 0) {
             candleSeries.setData(initialData);
+            chart.timeScale().fitContent();
           }
 
           window.updateCandleData = function(data) {
             if (data && data.length > 0) {
               candleSeries.setData(data);
+              chart.timeScale().fitContent();
             }
           };
 
@@ -142,14 +143,25 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
       </body>
     </html>
   `;
+  }, [colors, candles]);
 
   return (
-    <View style={[styles.wrapper, { height }]}>
+    <View
+      style={[
+        styles.wrapper,
+        {
+          height,
+          backgroundColor: colors.bgApp,
+          borderColor: colors.borderSubtle,
+        },
+      ]}
+    >
       <WebView
+        key={`${colors.mode}-${symbol}`}
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: htmlContent }}
-        style={styles.webView}
+        style={[styles.webView, { backgroundColor: colors.bgApp }]}
         scrollEnabled={false}
         bounces={false}
         onMessage={handleMessage}
@@ -158,9 +170,15 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
         androidLayerType="hardware"
       />
 
-      {/* TradingView Nav Button (Square Launch Button per Section 6.B.4 & 4.B.2) */}
       <Pressable
-        style={({ pressed }) => [styles.tvSquareButton, pressed && styles.tvSquareButtonPressed]}
+        style={({ pressed }) => [
+          styles.tvSquareButton,
+          {
+            backgroundColor: colors.surfaceCard,
+            borderColor: colors.borderActive,
+          },
+          pressed && { opacity: 0.8 },
+        ]}
         onPress={() => {
           if (onOpenTradingViewApp) {
             onOpenTradingViewApp();
@@ -169,10 +187,9 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
           }
         }}
         accessibilityRole="button"
-        accessibilityLabel="Launch in TradingView"
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        accessibilityLabel={`Open ${symbol} full chart in TradingView`}
       >
-        <ExternalLink size={18} color={COLORS.sentimentBullish} />
+        <ExternalLink size={18} color={colors.textPrimary} />
       </Pressable>
     </View>
   );
@@ -181,16 +198,13 @@ export const TradingViewWebView: React.FC<TradingViewWebViewProps> = ({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    backgroundColor: COLORS.surfaceCard,
-    borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
   },
   webView: {
     flex: 1,
-    backgroundColor: COLORS.surfaceCard,
   },
   tvSquareButton: {
     position: 'absolute',
@@ -198,21 +212,9 @@ const styles = StyleSheet.create({
     right: 10,
     width: 44,
     height: 44,
-    borderRadius: 8,
-    backgroundColor: COLORS.surfaceElevated,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.borderHighlight,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  tvSquareButtonPressed: {
-    opacity: 0.8,
-    backgroundColor: COLORS.surfaceSecondary,
   },
 });
-

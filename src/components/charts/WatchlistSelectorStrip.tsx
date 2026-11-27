@@ -1,8 +1,8 @@
 import React from 'react';
-import { ScrollView, Pressable, Text, View, StyleSheet } from 'react-native';
+import { ScrollView, Pressable, Text, StyleSheet } from 'react-native';
 import { MarketSymbol, TickerSummaryItem } from '../../types';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 
 interface WatchlistSelectorStripProps {
   symbols: MarketSymbol[];
@@ -17,6 +17,8 @@ export const WatchlistSelectorStrip: React.FC<WatchlistSelectorStripProps> = ({
   tickers,
   onSelectSymbol,
 }) => {
+  const colors = useThemeColors();
+
   return (
     <ScrollView
       horizontal
@@ -26,41 +28,43 @@ export const WatchlistSelectorStrip: React.FC<WatchlistSelectorStripProps> = ({
       {symbols.map((sym) => {
         const isSelected = activeSymbol === sym;
         const t = tickers[sym];
+        const pctColor = isSelected
+          ? colors.textInverse
+          : t?.direction === 'UP'
+            ? colors.sentimentBullish
+            : colors.sentimentBearish;
+
         return (
           <Pressable
             key={sym}
             style={({ pressed }) => [
               styles.watchlistChip,
-              isSelected ? styles.watchlistChipActive : styles.watchlistChipInactive,
-              pressed && { opacity: 0.8 },
+              isSelected
+                ? {
+                    backgroundColor: colors.accentNavy,
+                    borderColor: colors.accentNavy,
+                  }
+                : {
+                    backgroundColor: colors.surfaceCard,
+                    borderColor: colors.borderSubtle,
+                  },
+              pressed && { opacity: 0.84 },
             ]}
             onPress={() => onSelectSymbol(sym)}
             accessibilityRole="button"
-            accessibilityLabel={`${sym} market selector`}
+            accessibilityLabel={`Select ${sym} chart`}
             accessibilityState={{ selected: isSelected }}
-            hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
           >
-            {isSelected && <View style={styles.activeDot} />}
             <Text
               style={[
                 styles.watchlistChipText,
-                isSelected ? styles.watchlistChipTextActive : styles.watchlistChipTextInactive,
+                { color: isSelected ? colors.textInverse : colors.textPrimary },
               ]}
             >
               {sym}
             </Text>
             {t && (
-              <Text
-                style={[
-                  styles.watchlistChipPrice,
-                  {
-                    color:
-                      t.direction === 'UP'
-                        ? COLORS.sentimentBullish
-                        : COLORS.sentimentBearish,
-                  },
-                ]}
-              >
+              <Text style={[styles.watchlistChipPrice, { color: pctColor }]}>
                 {t.change_percentage >= 0 ? '+' : ''}
                 {t.change_percentage.toFixed(2)}%
               </Text>
@@ -75,47 +79,26 @@ export const WatchlistSelectorStrip: React.FC<WatchlistSelectorStripProps> = ({
 const styles = StyleSheet.create({
   watchlistScroll: {
     gap: 8,
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   watchlistChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 999,
-    gap: 6,
+    paddingHorizontal: 14,
+    minHeight: 44,
+    borderRadius: 4,
+    gap: 7,
     borderWidth: 1,
-  },
-  watchlistChipActive: {
-    backgroundColor: COLORS.surfaceElevated,
-    borderColor: COLORS.sentimentBullish,
-  },
-  watchlistChipInactive: {
-    backgroundColor: COLORS.surfaceCard,
-    borderColor: COLORS.borderSubtle,
-  },
-  activeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.sentimentBullish,
   },
   watchlistChipText: {
     fontFamily: FONTS.mono,
     fontSize: 12,
-  },
-  watchlistChipTextActive: {
     fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  watchlistChipTextInactive: {
-    fontWeight: '500',
-    color: COLORS.textSecondary,
   },
   watchlistChipPrice: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
+    ...TABULAR_NUMS,
   },
 });
-

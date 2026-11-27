@@ -1,307 +1,243 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Activity, ArrowUpRight, ArrowDownRight, Clock, ChevronRight, Bot } from 'lucide-react-native';
+import { ArrowUpRight, ArrowDownRight, ArrowRight, MessageSquare } from 'lucide-react-native';
 import { CountdownTimer } from '../common/CountdownTimer';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { EditorialDivider } from '../common/EditorialDivider';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { LatestPrediction } from '../../types';
 
 interface HeroPredictionCardProps {
   prediction: LatestPrediction;
+  cached?: boolean;
+  cacheTtlSeconds?: number;
   onAskAiPress: () => void;
 }
 
 export const HeroPredictionCard: React.FC<HeroPredictionCardProps> = ({
   prediction,
+  cached = true,
+  cacheTtlSeconds = 120,
   onAskAiPress,
 }) => {
+  const colors = useThemeColors();
   const isGoodForUsd = prediction.bias === 'GOOD FOR USD';
-  const sentimentColor = isGoodForUsd ? COLORS.sentimentBullish : COLORS.sentimentBearish;
-  const sentimentSubtle = isGoodForUsd ? COLORS.sentimentBullishSubtle : COLORS.sentimentBearishSubtle;
-  const sentimentBorder = isGoodForUsd ? COLORS.sentimentBullishBorder : COLORS.sentimentBearishBorder;
-  const executionTradeNote = isGoodForUsd
-    ? 'SELL XAUUSD / BUY USD PAIRS'
-    : 'BUY XAUUSD / SELL USD PAIRS';
+  const isNeutral = prediction.bias === 'NEUTRAL';
+  const sentimentColor = isNeutral
+    ? colors.textPrimary
+    : isGoodForUsd
+      ? colors.sentimentBullish
+      : colors.sentimentBearish;
+
+  const executionNote = prediction.recommended_action
+    ? prediction.recommended_action
+    : isGoodForUsd
+      ? 'SELL XAUUSD / BUY USD PAIRS'
+      : 'BUY XAUUSD / SELL USD PAIRS';
 
   return (
-    <View style={[styles.heroCard, { borderColor: sentimentBorder }]}>
-      {/* Header Row: Event Target + Live Countdown Pill */}
-      <View style={styles.heroHeader}>
-        <View style={styles.eventInfo}>
-          <Activity size={15} color={sentimentColor} />
-          <Text
-            style={styles.eventName}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {prediction.event_name}
-          </Text>
-        </View>
-        <CountdownTimer initialSeconds={prediction.countdown_seconds} />
+    <View
+      style={[
+        styles.heroBlock,
+        {
+          borderLeftColor: sentimentColor,
+        },
+      ]}
+    >
+      <View style={styles.topMetaRow}>
+        <Text style={[styles.kickerText, { color: colors.textMuted }]}>
+          {prediction.country} • {prediction.impact} IMPACT FORECAST
+        </Text>
+        <CountdownTimer initialSeconds={prediction.countdown_seconds} compact />
       </View>
 
-      {/* Directional Bias Callout */}
+      <Text style={[styles.eventTitle, { color: colors.textPrimary }]}>
+        {prediction.event_name}
+      </Text>
+
       <View style={styles.biasRow}>
-        <View style={styles.biasContent}>
-          <Text style={styles.biasLabel}>QUANTITATIVE BIAS</Text>
-          <Text style={[styles.biasHeading, { color: sentimentColor }]}>
-            {prediction.bias}
+        <Text style={[styles.biasHeadline, { color: sentimentColor }]}>
+          {prediction.bias}
+        </Text>
+        {isGoodForUsd ? (
+          <ArrowUpRight size={24} color={sentimentColor} strokeWidth={2.2} />
+        ) : (
+          <ArrowDownRight size={24} color={sentimentColor} strokeWidth={2.2} />
+        )}
+      </View>
+
+      <Text style={[styles.executionLine, { color: colors.textSecondary }]}>
+        Desk Positioning:{' '}
+        <Text style={[styles.executionValue, { color: sentimentColor }]}>{executionNote}</Text>
+      </Text>
+
+      <Text style={[styles.summaryText, { color: colors.textSecondary }]}>
+        {prediction.summary_reasoning}
+      </Text>
+
+      <View
+        style={[
+          styles.telemetryStrip,
+          {
+            backgroundColor: colors.surfaceCard,
+            borderColor: colors.borderSubtle,
+          },
+        ]}
+      >
+        <View style={styles.telemetryCell}>
+          <Text style={[styles.telemetryLabel, { color: colors.textMuted }]}>CONFIDENCE</Text>
+          <Text style={[styles.telemetryVal, { color: sentimentColor }]}>
+            {prediction.confidence_score}%
           </Text>
-          <View style={styles.tradeNoteContainer}>
-            <Text style={styles.tradeNoteLabel}>TRADE EXECUTION:</Text>
-            <Text style={[styles.tradeNoteValue, { color: sentimentColor }]}>
-              {executionTradeNote}
-            </Text>
-          </View>
         </View>
-        <View
-          style={[
-            styles.biasIconContainer,
-            { backgroundColor: sentimentSubtle, borderColor: sentimentBorder },
-          ]}
-        >
-          {isGoodForUsd ? (
-            <ArrowUpRight size={26} color={sentimentColor} />
-          ) : (
-            <ArrowDownRight size={26} color={sentimentColor} />
-          )}
+
+        <View style={[styles.cellDivider, { backgroundColor: colors.borderSubtle }]} />
+
+        <View style={styles.telemetryCell}>
+          <Text style={[styles.telemetryLabel, { color: colors.textMuted }]}>VECTORS</Text>
+          <Text style={[styles.telemetryVal, { color: colors.textPrimary }]}>140 Q-Models</Text>
+        </View>
+
+        <View style={[styles.cellDivider, { backgroundColor: colors.borderSubtle }]} />
+
+        <View style={styles.telemetryCell}>
+          <Text style={[styles.telemetryLabel, { color: colors.textMuted }]}>CACHE STATUS</Text>
+          <Text style={[styles.telemetryVal, { color: colors.textPrimary }]}>
+            {cached ? `REDIS (${cacheTtlSeconds}ms)` : 'LIVE ENGINE'}
+          </Text>
         </View>
       </View>
 
-      {/* Confidence Gauge */}
-      <View style={styles.confidenceSection}>
-        <View style={styles.confidenceRow}>
-          <Text style={styles.confidenceLabel}>Model Confidence</Text>
-          <Text style={[styles.confidenceValue, { color: sentimentColor }]}>
-            {prediction.confidence_score}% High Conviction
-          </Text>
-        </View>
-        <View style={styles.progressBarBg}>
-          <View
-            style={[
-              styles.progressBarFill,
-              { width: `${prediction.confidence_score}%`, backgroundColor: sentimentColor },
-            ]}
-          />
-        </View>
-        <View style={styles.confidenceFooter}>
-          <Text style={styles.confidenceSub}>Synthesized from 140 Macro Vectors</Text>
-          <Text style={[styles.confidenceSub, { color: COLORS.textSecondary }]}>
-            Z-Score: +{prediction.z_score_deviation}σ
-          </Text>
-        </View>
-      </View>
-
-      {/* Footer Telemetry Metadata */}
-      <View style={styles.heroFooter}>
-        <View style={styles.redisBadge}>
-          <View style={[styles.statusDot, { backgroundColor: sentimentColor }]} />
-          <Text style={styles.redisText}>Redis Cached (120ms)</Text>
-        </View>
-        <View style={styles.sessionTime}>
-          <Clock size={12} color={COLORS.textSecondary} />
-          <Text style={styles.sessionTimeText}>Tomorrow, 19:30 WIB</Text>
-        </View>
-      </View>
-
-      {/* Contextual Ask AI Copilot Button */}
       <Pressable
-        style={({ pressed }) => [styles.askAiButton, pressed && { opacity: 0.85 }]}
+        style={({ pressed }) => [
+          styles.askAiLink,
+          {
+            backgroundColor: colors.surfaceCard,
+            borderColor: colors.borderSubtle,
+          },
+          pressed && { opacity: 0.8 },
+        ]}
         onPress={onAskAiPress}
         accessibilityRole="button"
-        accessibilityLabel="Ask AI Copilot regarding CPI"
+        accessibilityLabel={`Ask AI Macro Analyst about ${prediction.event_name}`}
       >
         <View style={styles.askAiLeft}>
-          <Bot size={16} color={COLORS.textPrimary} />
-          <Text style={styles.askAiText}>Ask Copilot: CPI Inflation Impact Analysis</Text>
+          <MessageSquare size={15} color={colors.textPrimary} strokeWidth={1.8} />
+          <Text style={[styles.askAiText, { color: colors.textPrimary }]} numberOfLines={2}>
+            Ask AI Macro Analyst: Why is USD {isGoodForUsd ? 'bullish' : 'bearish'} ahead of CPI?
+          </Text>
         </View>
-        <ChevronRight size={16} color={COLORS.textSecondary} />
+        <ArrowRight size={16} color={colors.textPrimary} strokeWidth={1.8} />
       </Pressable>
+
+      <EditorialDivider spacingVertical={4} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  heroCard: {
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 16,
-    gap: 14,
+  heroBlock: {
+    borderLeftWidth: 3,
+    paddingLeft: 14,
+    gap: 10,
   },
-  heroHeader: {
+  topMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
+    flexWrap: 'wrap',
   },
-  eventInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
-    marginRight: 6,
-  },
-  eventName: {
+  kickerText: {
     fontFamily: FONTS.mono,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
-    color: COLORS.textSecondary,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-    flexShrink: 1,
+    letterSpacing: 0.8,
+  },
+  eventTitle: {
+    fontFamily: FONTS.serif,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '700',
   },
   biasRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 6,
   },
-  biasContent: {
-    flex: 1,
-  },
-  biasLabel: {
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    letterSpacing: 0.8,
-  },
-  biasHeading: {
-    fontFamily: FONTS.sans,
-    fontSize: 24,
-    fontWeight: '800',
-    marginTop: 2,
+  biasHeadline: {
+    fontFamily: FONTS.serif,
+    fontSize: 27,
+    lineHeight: 33,
+    fontWeight: '700',
     letterSpacing: -0.3,
   },
-  tradeNoteContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 6,
-  },
-  tradeNoteLabel: {
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    letterSpacing: 0.4,
-  },
-  tradeNoteValue: {
-    fontFamily: FONTS.mono,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  biasIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 12,
-  },
-  confidenceSection: {
-    gap: 6,
-  },
-  confidenceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  confidenceLabel: {
+  executionLine: {
     fontFamily: FONTS.sans,
     fontSize: 12,
-    color: COLORS.textSecondary,
   },
-  confidenceValue: {
+  executionValue: {
     fontFamily: FONTS.mono,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  progressBarBg: {
-    height: 6,
-    backgroundColor: COLORS.surfaceElevated,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  confidenceFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  confidenceSub: {
+  summaryText: {
     fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: COLORS.textSecondary,
+    fontSize: 14,
+    lineHeight: 21,
   },
-  heroFooter: {
+  telemetryStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-  },
-  redisBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: COLORS.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  redisText: {
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    color: COLORS.textSecondary,
-  },
-  sessionTime: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  sessionTimeText: {
-    fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: COLORS.textSecondary,
-  },
-  askAiButton: {
-    backgroundColor: COLORS.surfaceElevated,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    borderRadius: 4,
     paddingVertical: 10,
-    minHeight: 44,
+    paddingHorizontal: 10,
+    marginTop: 2,
+  },
+  telemetryCell: {
+    flex: 1,
+    gap: 2,
+  },
+  telemetryLabel: {
+    fontFamily: FONTS.mono,
+    fontSize: 9,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  telemetryVal: {
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    ...TABULAR_NUMS,
+  },
+  cellDivider: {
+    width: 1,
+    height: 24,
+    marginHorizontal: 8,
+  },
+  askAiLink: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    minHeight: 46,
+    gap: 10,
   },
   askAiLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 9,
+    flex: 1,
   },
   askAiText: {
     fontFamily: FONTS.sans,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    flex: 1,
+    lineHeight: 18,
   },
 });
-
-

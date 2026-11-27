@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Badge } from '../common/Badge';
+import { EditorialDivider } from '../common/EditorialDivider';
 import { MarketSymbol, TickerSummaryItem } from '../../types';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { formatPrice } from '../../utils/currency';
 
 interface MacroDivergenceMatrixProps {
@@ -15,63 +16,87 @@ export const MacroDivergenceMatrix: React.FC<MacroDivergenceMatrixProps> = ({
   symbols,
   tickers,
 }) => {
+  const colors = useThemeColors();
+
   return (
     <View style={styles.matrixSection}>
       <View style={styles.matrixHeader}>
-        <Text style={styles.matrixTitle}>Macro Divergence Matrix</Text>
-        <Text style={styles.matrixSync}>Live Polling (3s)</Text>
+        <Text style={[styles.matrixTitle, { color: colors.textMuted }]}>
+          INTERMARKET DIVERGENCE MATRIX
+        </Text>
+        <Text style={[styles.matrixSync, { color: colors.textSecondary }]}>LIVE STREAM</Text>
       </View>
 
-      {symbols.map((sym) => {
-        const t = tickers[sym];
-        if (!t) return null;
-        const isSymUp = t.direction === 'UP';
+      <EditorialDivider />
 
-        return (
-          <View key={sym} style={styles.matrixRow}>
-            <View style={styles.matrixRowLeft}>
-              <View style={styles.matrixIcon}>
-                <Text style={styles.matrixIconText}>{sym.substring(0, 3)}</Text>
-              </View>
-              <View>
-                <Text style={styles.matrixSymName}>{sym}</Text>
-                <Text style={styles.matrixSub}>{t.name}</Text>
-              </View>
-            </View>
+      <View>
+        {symbols.map((sym, idx) => {
+          const t = tickers[sym];
+          if (!t) return null;
+          const isSymUp = t.direction === 'UP';
+          const isLast = idx === symbols.length - 1;
 
-            <View style={styles.matrixRowRight}>
-              <View style={styles.matrixPriceCluster}>
-                <Text style={styles.matrixPrice}>{formatPrice(t.current_price, sym)}</Text>
-                <Text
-                  style={[
-                    styles.matrixPct,
-                    {
-                      color: isSymUp
-                        ? COLORS.sentimentBullish
-                        : COLORS.sentimentBearish,
-                    },
-                  ]}
-                >
-                  {isSymUp ? '+' : ''}
-                  {t.change_percentage.toFixed(2)}%
-                </Text>
+          return (
+            <View key={sym}>
+              <View style={styles.matrixRow}>
+                <View style={styles.matrixRowLeft}>
+                  <View
+                    style={[
+                      styles.matrixIcon,
+                      {
+                        backgroundColor: colors.surfaceCard,
+                        borderColor: colors.borderSubtle,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.matrixIconText, { color: colors.textPrimary }]}>
+                      {sym.substring(0, 3)}
+                    </Text>
+                  </View>
+                  <View style={styles.nameBlock}>
+                    <Text style={[styles.matrixSymName, { color: colors.textPrimary }]}>{sym}</Text>
+                    <Text style={[styles.matrixSub, { color: colors.textSecondary }]} numberOfLines={1}>
+                      {t.name}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.matrixRowRight}>
+                  <View style={styles.matrixPriceCluster}>
+                    <Text style={[styles.matrixPrice, { color: colors.textPrimary }]}>
+                      {formatPrice(t.current_price, sym)}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.matrixPct,
+                        {
+                          color: isSymUp ? colors.sentimentBullish : colors.sentimentBearish,
+                        },
+                      ]}
+                    >
+                      {isSymUp ? '+' : ''}
+                      {t.change_percentage.toFixed(2)}%
+                    </Text>
+                  </View>
+                  <Badge
+                    label={isSymUp ? 'BULLISH' : 'BEARISH'}
+                    variant={isSymUp ? 'bullish' : 'bearish'}
+                    size="sm"
+                  />
+                </View>
               </View>
-              <Badge
-                label={isSymUp ? 'BULLISH DRIVER' : 'BEARISH DRIVER'}
-                variant={isSymUp ? 'bullish' : 'bearish'}
-                size="sm"
-              />
+              {!isLast && <EditorialDivider dashed />}
             </View>
-          </View>
-        );
-      })}
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   matrixSection: {
-    gap: 10,
+    gap: 8,
   },
   matrixHeader: {
     flexDirection: 'row',
@@ -79,38 +104,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   matrixTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.0,
   },
   matrixSync: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    color: COLORS.textSecondary,
   },
   matrixRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 12,
-    padding: 12,
+    paddingVertical: 11,
+    gap: 12,
   },
   matrixRowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    flex: 1,
   },
   matrixIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: COLORS.surfaceElevated,
+    width: 38,
+    height: 38,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -118,18 +138,18 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.mono,
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+  },
+  nameBlock: {
+    flex: 1,
   },
   matrixSymName: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textPrimary,
   },
   matrixSub: {
     fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: COLORS.textSecondary,
+    fontSize: 12,
   },
   matrixRowRight: {
     alignItems: 'flex-end',
@@ -143,14 +163,13 @@ const styles = StyleSheet.create({
   matrixPrice: {
     fontFamily: FONTS.mono,
     fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
+    fontWeight: '700',
+    ...TABULAR_NUMS,
   },
   matrixPct: {
     fontFamily: FONTS.mono,
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '600',
+    ...TABULAR_NUMS,
   },
 });
-
-

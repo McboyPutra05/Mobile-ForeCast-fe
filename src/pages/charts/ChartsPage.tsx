@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
-import { Layers, ExternalLink } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Linking, ActivityIndicator } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { ExternalLink, ArrowRight } from 'lucide-react-native';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
 import { TopAppBar } from '../../components/common/TopAppBar';
 import { BottomSheetWrapper } from '../../components/common/BottomSheetWrapper';
@@ -10,22 +11,37 @@ import {
   TradingViewWebView,
   MacroDivergenceMatrix,
 } from '../../components/charts';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
 import { MarketSymbol, Timeframe } from '../../types';
 import { useMarketStore } from '../../store/useMarketStore';
-import { MOCK_CANDLES } from '../../api/chart.api';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
+import { chartApi, MOCK_CANDLES } from '../../api/chart.api';
 
 const WATCHLIST_SYMBOLS: MarketSymbol[] = ['DXY', 'USOIL', 'XAUUSD', 'USDIDR'];
 const TIMEFRAMES: Timeframe[] = ['15m', '1h', '4h', '1d'];
 
-export const ChartsPage = ({ navigation }: any) => {
+export const ChartsPage = () => {
+  const colors = useThemeColors();
   const activeSymbol = useMarketStore((s) => s.activeSymbol);
   const setActiveSymbol = useMarketStore((s) => s.setActiveSymbol);
   const tickers = useMarketStore((s) => s.tickers);
+  const defaultTimeframe = useUIStore((s) => s.defaultTimeframe);
 
-  const [activeTimeframe, setActiveTimeframe] = useState<Timeframe>('1h');
+  const [activeTimeframe, setActiveTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [isTvInterstitialOpen, setIsTvInterstitialOpen] = useState(false);
+
+  useEffect(() => {
+    setActiveTimeframe(defaultTimeframe);
+  }, [defaultTimeframe]);
+
+  const { data: ohlcRes, isLoading: isChartLoading } = useQuery({
+    queryKey: ['charts', 'ohlc', activeSymbol, activeTimeframe],
+    queryFn: () => chartApi.getOHLC(activeSymbol, activeTimeframe),
+    staleTime: 15000,
+  });
+
+  const candles = ohlcRes?.data?.candles || MOCK_CANDLES;
+  const lastCandle = candles[candles.length - 1] || MOCK_CANDLES[MOCK_CANDLES.length - 1];
   const currentTicker = tickers[activeSymbol];
 
   const handleLaunchTradingView = async () => {
@@ -53,18 +69,13 @@ export const ChartsPage = ({ navigation }: any) => {
 
   return (
     <SafeScreenWrapper edges={['top']}>
-      <TopAppBar
-        title="Intermarket Charts"
-        onNotificationPress={() => navigation.navigate('Notification')}
-        onProfilePress={() => navigation.navigate('Settings')}
-      />
+      <TopAppBar title="Intermarket Charts" />
 
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.bgApp }]}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Modular Feature 1: Horizontal Watchlist Selector Strip */}
         <WatchlistSelectorStrip
           symbols={WATCHLIST_SYMBOLS}
           activeSymbol={activeSymbol}
@@ -72,87 +83,154 @@ export const ChartsPage = ({ navigation }: any) => {
           onSelectSymbol={setActiveSymbol}
         />
 
-        {/* Modular Feature 2: Active Instrument Card */}
         <ActiveInstrumentCard ticker={currentTicker} />
 
-        {/* Modular Feature 3: Candlestick Chart Engine with Timeframe Bar */}
-        <View style={styles.chartContainer}>
-          <View style={styles.chartHeader}>
+        <View
+          style={[
+            styles.chartContainer,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.chartHeader,
+              {
+                backgroundColor: colors.surfaceCard,
+              },
+            ]}
+          >
             <View style={styles.ohlcRow}>
-              <Text style={styles.ohlcValActive}>O: 104.12</Text>
-              <Text style={styles.ohlcVal}>H: 104.62</Text>
-              <Text style={styles.ohlcVal}>L: 103.98</Text>
-              <Text style={styles.ohlcValActive}>C: 104.45</Text>
+              <Text style={[styles.ohlcVal, { color: colors.textSecondary }]}>
+                O {lastCandle.open.toFixed(2)}
+              </Text>
+              <Text style={[styles.ohlcVal, { color: colors.textSecondary }]}>
+                H {lastCandle.high.toFixed(2)}
+              </Text>
+              <Text style={[styles.ohlcVal, { color: colors.textSecondary }]}>
+                L {lastCandle.low.toFixed(2)}
+              </Text>
+              <Text style={[styles.ohlcValActive, { color: colors.sentimentBullish }]}>
+                C {lastCandle.close.toFixed(2)}
+              </Text>
             </View>
-            <View style={styles.indicatorCount}>
-              <Layers size={13} color={COLORS.textSecondary} />
-              <Text style={styles.indicatorCountText}>Indicators (3)</Text>
-            </View>
+            {isChartLoading && <ActivityIndicator size="small" color={colors.accentNavy} />}
           </View>
 
           <TradingViewWebView
             symbol={activeSymbol}
-            candles={MOCK_CANDLES}
+            candles={candles}
             height={250}
             onOpenTradingViewApp={() => setIsTvInterstitialOpen(true)}
           />
 
           <View style={styles.timeframeBar}>
-            <View style={styles.timeframeGroup}>
-              {TIMEFRAMES.map((tf) => (
+            {TIMEFRAMES.map((tf) => {
+              const isSelected = activeTimeframe === tf;
+              return (
                 <Pressable
                   key={tf}
-                  style={[styles.tfButton, activeTimeframe === tf && styles.tfButtonActive]}
+                  style={[
+                    styles.tfButton,
+                    isSelected
+                      ? {
+                          backgroundColor: colors.accentNavy,
+                          borderColor: colors.accentNavy,
+                        }
+                      : {
+                          backgroundColor: colors.bgApp,
+                          borderColor: colors.borderSubtle,
+                        },
+                  ]}
                   onPress={() => setActiveTimeframe(tf)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select ${tf} timeframe`}
+                  accessibilityState={{ selected: isSelected }}
                 >
                   <Text
                     style={[
                       styles.tfButtonText,
-                      activeTimeframe === tf && styles.tfButtonTextActive,
+                      { color: isSelected ? colors.textInverse : colors.textSecondary },
                     ]}
                   >
-                    {tf}
+                    {tf.toUpperCase()}
                   </Text>
                 </Pressable>
-              ))}
-            </View>
+              );
+            })}
           </View>
         </View>
 
-        {/* Modular Feature 4: Macro Divergence Matrix */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.tvLaunchRow,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+            pressed && { opacity: 0.8 },
+          ]}
+          onPress={() => setIsTvInterstitialOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`Open full ${activeSymbol} chart in TradingView App`}
+        >
+          <View style={styles.tvLaunchLeft}>
+            <Text style={[styles.tvLaunchTitle, { color: colors.textPrimary }]}>
+              Open full chart in TradingView App
+            </Text>
+            <Text style={[styles.tvLaunchSub, { color: colors.textSecondary }]}>
+              Multi-indicator Pine scripts for {activeSymbol}
+            </Text>
+          </View>
+          <ArrowRight size={17} color={colors.textPrimary} />
+        </Pressable>
+
         <MacroDivergenceMatrix symbols={WATCHLIST_SYMBOLS} tickers={tickers} />
       </ScrollView>
 
-      {/* Safety Interstitial Modal: TradingView External Launch (Section 4.B.2) */}
       <BottomSheetWrapper
         visible={isTvInterstitialOpen}
         onClose={() => setIsTvInterstitialOpen(false)}
-        title="Buka di TradingView?"
-        subtitle={`Instrumen: ${activeSymbol} (${currentTicker?.name || 'Live Market'})`}
+        title="Open in TradingView?"
+        subtitle={`Instrument: ${activeSymbol} (${currentTicker?.name || 'Live Market'})`}
       >
         <View style={styles.sheetBody}>
-          <Text style={styles.sheetMessage}>
-            Anda akan dialihkan ke aplikasi eksternal TradingView untuk inspeksi indikator kustom dan analisis multi-timeframe penuh.
+          <Text style={[styles.sheetMessage, { color: colors.textSecondary }]}>
+            You will be redirected to the TradingView application or web chart for full indicator inspection and multi-timeframe analysis.
           </Text>
 
           <View style={styles.sheetActions}>
             <Pressable
-              style={({ pressed }) => [styles.actionButtonPrimary, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [
+                styles.actionButtonPrimary,
+                { backgroundColor: colors.accentNavy },
+                pressed && { opacity: 0.88 },
+              ]}
               onPress={handleLaunchTradingView}
               accessibilityRole="button"
-              accessibilityLabel="Buka TradingView App"
+              accessibilityLabel="Launch TradingView App"
             >
-              <ExternalLink size={16} color={COLORS.textInverse} />
-              <Text style={styles.actionButtonPrimaryText}>Buka TradingView App</Text>
+              <ExternalLink size={16} color={colors.textInverse} />
+              <Text style={[styles.actionButtonPrimaryText, { color: colors.textInverse }]}>
+                Launch TradingView
+              </Text>
             </Pressable>
 
             <Pressable
-              style={({ pressed }) => [styles.actionButtonSecondary, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [
+                styles.actionButtonSecondary,
+                { borderColor: colors.borderSubtle },
+                pressed && { opacity: 0.75 },
+              ]}
               onPress={() => setIsTvInterstitialOpen(false)}
               accessibilityRole="button"
-              accessibilityLabel="Tetap di ForeCastFX"
+              accessibilityLabel="Stay in ForeCastFX"
             >
-              <Text style={styles.actionButtonSecondaryText}>Tetap di ForeCastFX</Text>
+              <Text style={[styles.actionButtonSecondaryText, { color: colors.textSecondary }]}>
+                Stay in ForeCastFX
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -164,18 +242,15 @@ export const ChartsPage = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 96,
     gap: 16,
   },
   chartContainer: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
+    borderRadius: 4,
     overflow: 'hidden',
   },
   chartHeader: {
@@ -183,111 +258,102 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: COLORS.surfaceElevated,
+    paddingVertical: 10,
   },
   ohlcRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 10,
   },
   ohlcVal: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
-    color: COLORS.textSecondary,
+    fontSize: 11,
+    ...TABULAR_NUMS,
   },
   ohlcValActive: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
-    fontWeight: '600',
-    color: COLORS.sentimentBullish,
-  },
-  indicatorCount: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  indicatorCountText: {
-    fontFamily: FONTS.sans,
     fontSize: 11,
-    color: COLORS.textSecondary,
+    fontWeight: '700',
+    ...TABULAR_NUMS,
   },
   timeframeBar: {
-    padding: 8,
-    backgroundColor: COLORS.surfaceCard,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-  },
-  timeframeGroup: {
     flexDirection: 'row',
-    gap: 6,
+    padding: 8,
+    gap: 8,
   },
   tfButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    minHeight: 36,
-    borderRadius: 6,
-    backgroundColor: COLORS.surfaceElevated,
-    justifyContent: 'center',
-  },
-  tfButtonActive: {
-    backgroundColor: COLORS.sentimentBullishSubtle,
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.sentimentBullishBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tfButtonText: {
     fontFamily: FONTS.mono,
     fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
+    fontWeight: '700',
   },
-  tfButtonTextActive: {
-    color: COLORS.sentimentBullish,
+  tvLaunchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    minHeight: 54,
+    gap: 10,
+  },
+  tvLaunchLeft: {
+    flex: 1,
+  },
+  tvLaunchTitle: {
+    fontFamily: FONTS.sans,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tvLaunchSub: {
+    fontFamily: FONTS.sans,
+    fontSize: 12,
+    marginTop: 2,
   },
   sheetBody: {
-    paddingVertical: 8,
+    paddingVertical: 4,
     gap: 16,
   },
   sheetMessage: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 20,
-    color: COLORS.textSecondary,
   },
   sheetActions: {
     gap: 10,
-    marginTop: 8,
   },
   actionButtonPrimary: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.sentimentBullish,
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 4,
     minHeight: 48,
   },
   actionButtonPrimaryText: {
     fontFamily: FONTS.sans,
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textInverse,
   },
   actionButtonSecondary: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 4,
+    borderWidth: 1,
     minHeight: 44,
   },
   actionButtonSecondaryText: {
     fontFamily: FONTS.sans,
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
   },
 });
-
-

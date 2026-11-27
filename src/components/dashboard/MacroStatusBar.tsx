@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Clock } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors, useUIStore } from '../../store/useUIStore';
 
 interface MacroStatusBarProps {
   eventName?: string;
@@ -11,23 +10,34 @@ interface MacroStatusBarProps {
 
 export const MacroStatusBar: React.FC<MacroStatusBarProps> = ({
   eventName = 'US CPI',
-  countdownText = '1h 18m',
+  countdownText = '01h : 18m : 36s',
 }) => {
+  const colors = useThemeColors();
+  const isHighAlertMode = useUIStore((s) => s.isHighAlertMode);
+
   return (
-    <View style={styles.statusBar}>
-      <View style={styles.statusLeft}>
-        <View style={styles.pulseDot} />
-        <Text style={styles.statusLabel}>LIVE MACRO ENGINE</Text>
-      </View>
-      <View style={styles.statusRight}>
-        <Clock size={13} color={COLORS.alertWarning} />
-        <Text style={styles.statusTimerText}>
-          {eventName} in{' '}
-          <Text style={styles.timerHighlight}>
-            {countdownText}
-          </Text>
-        </Text>
-      </View>
+    <View
+      style={[
+        styles.statusBar,
+        {
+          borderTopColor: colors.borderSubtle,
+          borderBottomColor: colors.borderSubtle,
+          backgroundColor: isHighAlertMode ? colors.alertWarningSubtle : colors.bgApp,
+        },
+      ]}
+    >
+      <Text style={[styles.deskLabel, { color: colors.textSecondary }]} numberOfLines={1}>
+        US MACRO DESK • WIB (UTC+7)
+      </Text>
+      <Text
+        style={[
+          styles.releaseText,
+          { color: isHighAlertMode ? colors.alertWarning : colors.textPrimary },
+        ]}
+        numberOfLines={1}
+      >
+        {eventName} in {countdownText}
+      </Text>
     </View>
   );
 };
@@ -37,46 +47,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
-  },
-  statusLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     gap: 8,
   },
-  pulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.sentimentBullish,
-  },
-  statusLabel: {
+  deskLabel: {
     fontFamily: FONTS.mono,
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.sentimentBullish,
+    fontSize: 10,
+    fontWeight: '600',
     letterSpacing: 0.6,
+    flexShrink: 1,
   },
-  statusRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  statusTimerText: {
-    fontFamily: FONTS.sans,
-    fontSize: 12,
-    color: COLORS.textSecondary,
-  },
-  timerHighlight: {
+  releaseText: {
     fontFamily: FONTS.mono,
-    color: COLORS.alertWarning,
+    fontSize: 10,
     fontWeight: '700',
+    ...TABULAR_NUMS,
   },
 });
-
-

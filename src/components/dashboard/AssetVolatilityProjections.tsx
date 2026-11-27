@@ -1,41 +1,93 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { TrendingUp, TrendingDown } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
+import { useMarketStore } from '../../store/useMarketStore';
+import { formatPrice } from '../../utils/currency';
 
 export const AssetVolatilityProjections: React.FC = () => {
+  const colors = useThemeColors();
+  const tickers = useMarketStore((s) => s.tickers);
+  const dxy = tickers.DXY;
+  const xau = tickers.XAUUSD;
+
+  const isDxyUp = dxy.direction === 'UP';
+  const isXauUp = xau.direction === 'UP';
+
   return (
-    <View style={styles.volatilityCard}>
-      <View style={styles.volatilityHeader}>
-        <Text style={styles.volatilityTitle}>Asset Volatility Projections</Text>
-        <Text style={styles.volatilityTime}>T-MINUS 135M</Text>
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionKicker, { color: colors.textMuted }]}>
+          INTERMARKET VOLATILITY
+        </Text>
+        <Text style={[styles.deskTag, { color: colors.textSecondary }]}>LIVE SPOT DESK</Text>
       </View>
 
-      <View style={styles.volatilityGrid}>
-        <View style={styles.volatilityItem}>
-          <View style={styles.volatilityItemHeader}>
-            <Text style={styles.volatilitySymbol}>DXY (Dollar Index)</Text>
-            <TrendingUp size={16} color={COLORS.sentimentBullish} />
+      <View style={styles.grid}>
+        <View
+          style={[
+            styles.assetBox,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <View style={styles.assetHeader}>
+            <Text style={[styles.assetSymbol, { color: colors.textSecondary }]}>
+              DXY (Dollar Index)
+            </Text>
+            {isDxyUp ? (
+              <TrendingUp size={15} color={colors.sentimentBullish} />
+            ) : (
+              <TrendingDown size={15} color={colors.sentimentBearish} />
+            )}
           </View>
-          <Text style={[styles.volatilityPrice, { color: COLORS.sentimentBullish }]}>
-            104.82
+          <Text style={[styles.assetPrice, { color: colors.textPrimary }]}>
+            {formatPrice(dxy.current_price, 'DXY')}
           </Text>
-          <Text style={[styles.volatilityDelta, { color: COLORS.sentimentBullish }]}>
-            +0.48% Implied Delta
+          <Text
+            style={[
+              styles.assetDelta,
+              { color: isDxyUp ? colors.sentimentBullish : colors.sentimentBearish },
+            ]}
+          >
+            {isDxyUp ? '+' : ''}
+            {dxy.change_percentage.toFixed(2)}% Session Delta
           </Text>
         </View>
 
-        <View style={styles.volatilityItem}>
-          <View style={styles.volatilityItemHeader}>
-            <Text style={styles.volatilitySymbol}>XAU/USD (Gold)</Text>
-            <TrendingDown size={16} color={COLORS.sentimentBearish} />
+        <View
+          style={[
+            styles.assetBox,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <View style={styles.assetHeader}>
+            <Text style={[styles.assetSymbol, { color: colors.textSecondary }]}>
+              XAU/USD (Gold)
+            </Text>
+            {isXauUp ? (
+              <TrendingUp size={15} color={colors.sentimentBullish} />
+            ) : (
+              <TrendingDown size={15} color={colors.sentimentBearish} />
+            )}
           </View>
-          <Text style={[styles.volatilityPrice, { color: COLORS.sentimentBearish }]}>
-            $2,318.40
+          <Text style={[styles.assetPrice, { color: colors.textPrimary }]}>
+            {formatPrice(xau.current_price, 'XAUUSD')}
           </Text>
-          <Text style={[styles.volatilityDelta, { color: COLORS.sentimentBearish }]}>
-            -1.15% Implied Drag
+          <Text
+            style={[
+              styles.assetDelta,
+              { color: isXauUp ? colors.sentimentBullish : colors.sentimentBearish },
+            ]}
+          >
+            {isXauUp ? '+' : ''}
+            {xau.change_percentage.toFixed(2)}% Session Delta
           </Text>
         </View>
       </View>
@@ -44,65 +96,58 @@ export const AssetVolatilityProjections: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  volatilityCard: {
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
+  section: {
+    gap: 10,
   },
-  volatilityHeader: {
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  volatilityTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+  sectionKicker: {
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.0,
   },
-  volatilityTime: {
+  deskTag: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
   },
-  volatilityGrid: {
+  grid: {
     flexDirection: 'row',
     gap: 12,
   },
-  volatilityItem: {
+  assetBox: {
     flex: 1,
-    backgroundColor: COLORS.surfaceElevated,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 12,
     gap: 4,
   },
-  volatilityItemHeader: {
+  assetHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 4,
   },
-  volatilitySymbol: {
+  assetSymbol: {
     fontFamily: FONTS.sans,
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    flexShrink: 1,
   },
-  volatilityPrice: {
+  assetPrice: {
     fontFamily: FONTS.mono,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
     marginTop: 2,
+    ...TABULAR_NUMS,
   },
-  volatilityDelta: {
+  assetDelta: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
+    ...TABULAR_NUMS,
   },
 });
-

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { TrendingUp, TrendingDown, Zap } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { TrendingUp, TrendingDown } from 'lucide-react-native';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { TickerSummaryItem } from '../../types';
 import { formatPrice } from '../../utils/currency';
 
@@ -11,66 +11,69 @@ interface ActiveInstrumentCardProps {
 }
 
 export const ActiveInstrumentCard: React.FC<ActiveInstrumentCardProps> = ({ ticker }) => {
+  const colors = useThemeColors();
   const isUp = ticker.direction === 'UP';
+  const deltaColor = isUp ? colors.sentimentBullish : colors.sentimentBearish;
+  const deltaBg = isUp ? colors.sentimentBullishSubtle : colors.sentimentBearishSubtle;
+  const deltaBorder = isUp ? colors.sentimentBullishBorder : colors.sentimentBearishBorder;
 
   return (
-    <View style={styles.overviewCard}>
+    <View
+      style={[
+        styles.overviewCard,
+        {
+          backgroundColor: colors.surfaceCard,
+          borderColor: colors.borderSubtle,
+        },
+      ]}
+    >
       <View style={styles.overviewHeader}>
-        <Text style={styles.overviewTitle}>
-          {ticker.symbol} — {ticker.name}
+        <Text style={[styles.overviewTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+          {ticker.symbol}: {ticker.name}
         </Text>
-        <View style={styles.feedBadge}>
-          <View style={styles.feedPulseDot} />
-          <Text style={styles.feedText}>Real-Time Feed</Text>
-        </View>
+        <Text style={[styles.feedText, { color: colors.textMuted }]}>SPOT REAL-TIME</Text>
       </View>
 
       <View style={styles.priceRow}>
         <View style={styles.priceLeft}>
-          <Text style={styles.priceValue}>{formatPrice(ticker.current_price, ticker.symbol)}</Text>
+          <Text style={[styles.priceValue, { color: colors.textPrimary }]}>
+            {formatPrice(ticker.current_price, ticker.symbol)}
+          </Text>
           <View
             style={[
               styles.deltaPill,
               {
-                backgroundColor: isUp ? COLORS.sentimentBullishSubtle : COLORS.sentimentBearishSubtle,
-                borderColor: isUp ? COLORS.sentimentBullishBorder : COLORS.sentimentBearishBorder,
+                backgroundColor: deltaBg,
+                borderColor: deltaBorder,
               },
             ]}
           >
             {isUp ? (
-              <TrendingUp size={14} color={COLORS.sentimentBullish} />
+              <TrendingUp size={13} color={deltaColor} />
             ) : (
-              <TrendingDown size={14} color={COLORS.sentimentBearish} />
+              <TrendingDown size={13} color={deltaColor} />
             )}
-            <Text
-              style={[
-                styles.deltaText,
-                { color: isUp ? COLORS.sentimentBullish : COLORS.sentimentBearish },
-              ]}
-            >
+            <Text style={[styles.deltaText, { color: deltaColor }]}>
               {isUp ? '+' : ''}
               {ticker.change_point.toFixed(2)} ({isUp ? '+' : ''}
               {ticker.change_percentage.toFixed(2)}%)
             </Text>
           </View>
         </View>
-
-        <View style={styles.sessionRange}>
-          <Text style={styles.rangeLabel}>Session Range</Text>
-          <Text style={styles.rangeValue}>
-            {ticker.session_low} - {ticker.session_high}
-          </Text>
-        </View>
       </View>
 
-      {/* CPI Sensitivity Tag */}
-      <View style={styles.sensitivityBanner}>
-        <View style={styles.sensitivityLeft}>
-          <Zap size={14} color={COLORS.alertWarning} />
-          <Text style={styles.sensitivityLabel}>Macro Sensitivity Driver</Text>
+      <View style={[styles.metaRow, { borderTopColor: colors.borderSubtle }]}>
+        <View style={styles.metaItem}>
+          <Text style={[styles.metaLabel, { color: colors.textMuted }]}>SESSION RANGE</Text>
+          <Text style={[styles.metaVal, { color: colors.textPrimary }]}>
+            {ticker.session_low} to {ticker.session_high}
+          </Text>
         </View>
-        <View style={styles.sensitivityPill}>
-          <Text style={styles.sensitivityPillText}>{ticker.sensitivity_tag}</Text>
+        <View style={[styles.metaItem, { alignItems: 'flex-end' }]}>
+          <Text style={[styles.metaLabel, { color: colors.textMuted }]}>SENSITIVITY DRIVER</Text>
+          <Text style={[styles.metaVal, { color: colors.alertWarning }]}>
+            {ticker.sensitivity_tag}
+          </Text>
         </View>
       </View>
     </View>
@@ -79,124 +82,82 @@ export const ActiveInstrumentCard: React.FC<ActiveInstrumentCardProps> = ({ tick
 
 const styles = StyleSheet.create({
   overviewCard: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
+    borderRadius: 4,
+    padding: 14,
+    gap: 10,
   },
   overviewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
   },
   overviewTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 14,
+    fontFamily: FONTS.serif,
+    fontSize: 18,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  feedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: COLORS.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-  },
-  feedPulseDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: COLORS.sentimentBullish,
+    flex: 1,
   },
   feedText: {
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '600',
-    color: COLORS.sentimentBullish,
-    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   priceLeft: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 10,
   },
   priceValue: {
     fontFamily: FONTS.mono,
-    fontSize: 26,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
+    fontSize: 28,
+    fontWeight: '700',
+    ...TABULAR_NUMS,
   },
   deltaPill: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingVertical: 4,
+    borderRadius: 4,
     borderWidth: 1,
-    gap: 4,
+    gap: 5,
   },
   deltaText: {
     fontFamily: FONTS.mono,
     fontSize: 11,
     fontWeight: '600',
+    ...TABULAR_NUMS,
   },
-  sessionRange: {
-    alignItems: 'flex-end',
-  },
-  rangeLabel: {
-    fontFamily: FONTS.sans,
-    fontSize: 10,
-    color: COLORS.textSecondary,
-  },
-  rangeValue: {
-    fontFamily: FONTS.mono,
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginTop: 2,
-  },
-  sensitivityBanner: {
+  metaRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceSecondary,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    gap: 12,
   },
-  sensitivityLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  metaItem: {
+    flex: 1,
+    gap: 2,
   },
-  sensitivityLabel: {
-    fontFamily: FONTS.sans,
-    fontSize: 12,
-    color: COLORS.textPrimary,
-  },
-  sensitivityPill: {
-    backgroundColor: COLORS.alertWarningSubtle,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  sensitivityPillText: {
+  metaLabel: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
-    color: COLORS.alertWarning,
-    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  metaVal: {
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    fontWeight: '600',
+    ...TABULAR_NUMS,
   },
 });
-
