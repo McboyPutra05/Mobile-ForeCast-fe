@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Clock } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { formatSecondsToCountdown } from '../../utils/date';
 
 interface CountdownTimerProps {
   initialSeconds?: number;
   onExpire?: () => void;
-  style?: object;
+  style?: ViewStyle;
+  compact?: boolean;
 }
 
 export const CountdownTimer: React.FC<CountdownTimerProps> = ({
-  initialSeconds = 4716, // Default 1h 18m 36s
+  initialSeconds = 4716,
   onExpire,
   style,
+  compact = false,
 }) => {
+  const colors = useThemeColors();
   const [remaining, setRemaining] = useState(initialSeconds);
 
   useEffect(() => {
@@ -43,11 +46,23 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
   }, [remaining, onExpire]);
 
   const countdown = formatSecondsToCountdown(remaining);
+  const isHighAlert = remaining > 0 && remaining <= 900;
+  const accent = isHighAlert ? colors.alertWarning : colors.textPrimary;
 
   return (
-    <View style={[styles.container, style]}>
-      <Clock size={12} color={COLORS.alertWarning} />
-      <Text style={styles.timerText}>{countdown.formatted}</Text>
+    <View
+      style={[
+        styles.container,
+        !compact && {
+          backgroundColor: isHighAlert ? colors.alertWarningSubtle : colors.surfaceCard,
+          borderWidth: 1,
+          borderColor: isHighAlert ? colors.alertWarningBorder : colors.borderSubtle,
+        },
+        style,
+      ]}
+    >
+      <Clock size={12} color={isHighAlert ? colors.alertWarning : colors.textSecondary} />
+      <Text style={[styles.timerText, { color: accent }]}>{countdown.formatted}</Text>
     </View>
   );
 };
@@ -57,17 +72,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: COLORS.surfaceElevated,
     paddingHorizontal: 8,
-    paddingVertical: 3.5,
-    borderRadius: 999,
+    paddingVertical: 4,
+    borderRadius: 4,
     flexShrink: 0,
   },
   timerText: {
     fontFamily: FONTS.mono,
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.alertWarning,
     letterSpacing: -0.2,
+    ...TABULAR_NUMS,
   },
 });

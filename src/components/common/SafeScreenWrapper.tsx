@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar, ViewStyle } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
-import { COLORS } from '../../constants/colors';
+import { useThemeColors } from '../../store/useUIStore';
 
 interface SafeScreenWrapperProps {
   children: React.ReactNode;
   edges?: Edge[];
   className?: string;
-  style?: object;
+  style?: ViewStyle;
 }
 
 export const SafeScreenWrapper: React.FC<SafeScreenWrapperProps> = ({
@@ -15,10 +15,15 @@ export const SafeScreenWrapper: React.FC<SafeScreenWrapperProps> = ({
   edges = ['top'],
   style,
 }) => {
+  const colors = useThemeColors();
+
   return (
-    <SafeAreaView edges={edges} style={[styles.container, style]}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.bgApp} />
-      <View style={styles.inner}>{children}</View>
+    <SafeAreaView edges={edges} style={[styles.container, { backgroundColor: colors.bgApp }, style]}>
+      <StatusBar
+        barStyle={colors.mode === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.bgApp}
+      />
+      <View style={[styles.inner, { backgroundColor: colors.bgApp }]}>{children}</View>
     </SafeAreaView>
   );
 };
@@ -26,11 +31,8 @@ export const SafeScreenWrapper: React.FC<SafeScreenWrapperProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
   },
   inner: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
   },
 });
-

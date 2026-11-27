@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  Radar,
+  LayoutGrid,
   CandlestickChart,
   CalendarDays,
   Newspaper,
-  CheckCircle,
+  History,
 } from 'lucide-react-native';
 import { MainTabParamList } from './types';
 import { ROUTES } from './routeNames';
@@ -15,21 +15,38 @@ import { ChartsPage } from '../pages/charts';
 import { CalendarPage } from '../pages/calendar';
 import { NewsPage } from '../pages/news';
 import { HistoryPage } from '../pages/history';
-import { COLORS } from '../constants/colors';
 import { FONTS } from '../constants/typography';
+import { useThemeColors } from '../store/useUIStore';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const TabNavigator = () => {
+  const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
+  const activeColor = colors.mode === 'dark' ? colors.textPrimary : colors.accentNavy;
+
   return (
     <Tab.Navigator
       initialRouteName={ROUTES.DASHBOARD}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: COLORS.sentimentBullish,
-        tabBarInactiveTintColor: COLORS.textSecondary,
-        tabBarLabelStyle: styles.tabLabel,
+        tabBarStyle: {
+          backgroundColor: colors.bgApp,
+          borderTopWidth: 1,
+          borderTopColor: colors.borderSubtle,
+          height: 58 + insets.bottom,
+          paddingBottom: Math.max(insets.bottom, 8),
+          paddingTop: 6,
+          elevation: 0,
+        },
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarLabelStyle: {
+          fontFamily: FONTS.sans,
+          fontSize: 10,
+          fontWeight: '600',
+          letterSpacing: 0.2,
+        },
       }}
     >
       <Tab.Screen
@@ -37,7 +54,7 @@ export const TabNavigator = () => {
         component={DashboardPage}
         options={{
           tabBarLabel: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <Radar size={size - 2} color={color} />,
+          tabBarIcon: ({ color }) => <LayoutGrid size={20} color={color} strokeWidth={1.8} />,
         }}
       />
       <Tab.Screen
@@ -45,9 +62,7 @@ export const TabNavigator = () => {
         component={ChartsPage}
         options={{
           tabBarLabel: 'Charts',
-          tabBarIcon: ({ color, size }) => (
-            <CandlestickChart size={size - 2} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <CandlestickChart size={20} color={color} strokeWidth={1.8} />,
         }}
       />
       <Tab.Screen
@@ -55,9 +70,7 @@ export const TabNavigator = () => {
         component={CalendarPage}
         options={{
           tabBarLabel: 'Calendar',
-          tabBarIcon: ({ color, size }) => (
-            <CalendarDays size={size - 2} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <CalendarDays size={20} color={color} strokeWidth={1.8} />,
         }}
       />
       <Tab.Screen
@@ -65,7 +78,7 @@ export const TabNavigator = () => {
         component={NewsPage}
         options={{
           tabBarLabel: 'News',
-          tabBarIcon: ({ color, size }) => <Newspaper size={size - 2} color={color} />,
+          tabBarIcon: ({ color }) => <Newspaper size={20} color={color} strokeWidth={1.8} />,
         }}
       />
       <Tab.Screen
@@ -73,26 +86,9 @@ export const TabNavigator = () => {
         component={HistoryPage}
         options={{
           tabBarLabel: 'History',
-          tabBarIcon: ({ color, size }) => <CheckCircle size={size - 2} color={color} />,
+          tabBarIcon: ({ color }) => <History size={20} color={color} strokeWidth={1.8} />,
         }}
       />
     </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: COLORS.surfaceCard,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-    height: 66,
-    paddingBottom: 10,
-    paddingTop: 8,
-  },
-  tabLabel: {
-    fontFamily: FONTS.sans,
-    fontSize: 10,
-    fontWeight: '600',
-  },
-});
-

@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 
-export type BadgeVariant = 'bullish' | 'bearish' | 'warning' | 'info' | 'neutral';
+export type BadgeVariant = 'bullish' | 'bearish' | 'warning' | 'navy' | 'neutral';
 
 interface BadgeProps {
   label: string;
@@ -12,43 +12,44 @@ interface BadgeProps {
 }
 
 export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral', size = 'sm' }) => {
-  const getBadgeColors = () => {
+  const colors = useThemeColors();
+
+  const palette = (() => {
     switch (variant) {
       case 'bullish':
         return {
-          bg: COLORS.sentimentBullishSubtle,
-          border: COLORS.sentimentBullishBorder,
-          text: COLORS.sentimentBullish,
+          bg: colors.sentimentBullishSubtle,
+          border: colors.sentimentBullishBorder,
+          text: colors.sentimentBullish,
         };
       case 'bearish':
         return {
-          bg: COLORS.sentimentBearishSubtle,
-          border: COLORS.sentimentBearishBorder,
-          text: COLORS.sentimentBearish,
+          bg: colors.sentimentBearishSubtle,
+          border: colors.sentimentBearishBorder,
+          text: colors.sentimentBearish,
         };
       case 'warning':
         return {
-          bg: COLORS.alertWarningSubtle,
-          border: 'rgba(245, 158, 11, 0.35)',
-          text: COLORS.alertWarning,
+          bg: colors.alertWarningSubtle,
+          border: colors.alertWarningBorder,
+          text: colors.alertWarning,
         };
-      case 'info':
+      case 'navy':
         return {
-          bg: COLORS.alertInfoSubtle,
-          border: 'rgba(59, 130, 246, 0.35)',
-          text: COLORS.alertInfo,
+          bg: colors.accentNavySubtle,
+          border: colors.accentNavyBorder,
+          text: colors.mode === 'dark' ? colors.textPrimary : colors.accentNavy,
         };
       case 'neutral':
       default:
         return {
-          bg: COLORS.surfaceSecondary,
-          border: COLORS.borderSubtle,
-          text: COLORS.textSecondary,
+          bg: colors.surfaceCard,
+          border: colors.borderSubtle,
+          text: colors.textSecondary,
         };
     }
-  };
+  })();
 
-  const colors = getBadgeColors();
   const isSm = size === 'sm';
 
   return (
@@ -56,10 +57,10 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral', size =
       style={[
         styles.badge,
         {
-          backgroundColor: colors.bg,
-          borderColor: colors.border,
-          paddingHorizontal: isSm ? 6 : 8,
-          paddingVertical: isSm ? 2 : 4,
+          backgroundColor: palette.bg,
+          borderColor: palette.border,
+          paddingHorizontal: isSm ? 7 : 9,
+          paddingVertical: isSm ? 2.5 : 4,
         },
       ]}
     >
@@ -67,8 +68,8 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral', size =
         style={[
           styles.badgeText,
           {
-            color: colors.text,
-            fontSize: isSm ? 10 : 12,
+            color: palette.text,
+            fontSize: isSm ? 10 : 11,
           },
         ]}
       >
@@ -80,7 +81,7 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral', size =
 
 const styles = StyleSheet.create({
   badge: {
-    borderRadius: 6,
+    borderRadius: 4,
     borderWidth: 1,
     alignSelf: 'flex-start',
     alignItems: 'center',
@@ -89,7 +90,8 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: FONTS.mono,
     fontWeight: '600',
+    letterSpacing: 0.4,
     textTransform: 'uppercase',
+    ...TABULAR_NUMS,
   },
 });
-

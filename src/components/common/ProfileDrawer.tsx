@@ -1,27 +1,30 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   X,
-  User,
-  Shield,
-  Sliders,
+  SlidersHorizontal,
   LogOut,
-  Award,
-  TrendingUp,
-  Activity,
+  CheckCircle2,
+  Bell,
+  ChevronRight,
 } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { ROUTES } from '../../routes/routeNames';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useUIStore } from '../../store/useUIStore';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
+import { MOCK_HISTORY_ACCURACY } from '../../api/history.api';
 
 interface ProfileDrawerProps {
-  navigation: any;
+  onNavigate: (route: string, params?: Record<string, unknown>) => void;
 }
 
-export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ navigation }) => {
+export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ onNavigate }) => {
+  const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const isDrawerOpen = useUIStore((s) => s.isProfileDrawerOpen);
   const setDrawerOpen = useUIStore((s) => s.setProfileDrawerOpen);
+  const unreadCount = useUIStore((s) => s.unreadNotificationsCount);
 
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -30,9 +33,9 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ navigation }) => {
 
   const handleClose = () => setDrawerOpen(false);
 
-  const navigateToSettings = () => {
+  const handleNavigate = (route: string, params?: Record<string, unknown>) => {
     handleClose();
-    navigation.navigate('Settings');
+    onNavigate(route, params);
   };
 
   const handleLogout = async () => {
@@ -40,100 +43,216 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ navigation }) => {
     await logout();
   };
 
+  const displayName = user?.name || 'ForeCastFX Member';
+  const initials = displayName
+    .split(' ')
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const { win_rate_percentage, total_events_analyzed } = MOCK_HISTORY_ACCURACY.summary_kpi;
+
   return (
     <Modal visible={isDrawerOpen} transparent animationType="fade" onRequestClose={handleClose}>
-      <View style={styles.overlay}>
-        <Pressable style={styles.scrim} onPress={handleClose} />
+      <View style={[styles.overlay, { backgroundColor: colors.scrim }]}>
+        <View
+          style={[
+            styles.drawerContainer,
+            {
+              backgroundColor: colors.bgApp,
+              borderRightColor: colors.borderSubtle,
+              paddingTop: Math.max(insets.top + 12, 24),
+              paddingBottom: Math.max(insets.bottom + 16, 24),
+            },
+          ]}
+        >
+          <View>
+            <View style={[styles.topBar, { borderBottomColor: colors.borderSubtle }]}>
+              <Text style={[styles.topBarTitle, { color: colors.textMuted }]}>
+                FORECASTFX ACCOUNT
+              </Text>
+              <Pressable
+                style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.7 }]}
+                onPress={handleClose}
+                accessibilityRole="button"
+                accessibilityLabel="Close profile drawer"
+              >
+                <X size={20} color={colors.textPrimary} />
+              </Pressable>
+            </View>
 
-        {/* 82% Width Slide-Out Left Drawer */}
-        <View style={styles.drawerContainer}>
-          {/* Top Bar with Close Button */}
-          <View style={styles.topBar}>
-            <Text style={styles.topBarTitle}>Institutional Trader</Text>
-            <Pressable
-              style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.7 }]}
-              onPress={handleClose}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              accessibilityRole="button"
-              accessibilityLabel="Close Drawer"
+            <View
+              style={[
+                styles.profileCard,
+                {
+                  backgroundColor: colors.surfaceCard,
+                  borderColor: colors.borderSubtle,
+                },
+              ]}
             >
-              <X size={20} color={COLORS.textSecondary} />
-            </Pressable>
-          </View>
-
-          {/* User Profile Card */}
-          <View style={styles.profileCard}>
-            <View style={styles.avatarCircle}>
-              <User size={30} color={COLORS.sentimentBullish} />
-            </View>
-            <View style={styles.profileDetails}>
-              <Text style={styles.userName}>{user?.name || 'Fahmi Dani'}</Text>
-              <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
-              <View style={styles.roleTag}>
-                <Shield size={12} color={COLORS.sentimentBullish} />
-                <Text style={styles.roleText}>{user?.role || 'PRO_TRADER'}</Text>
+              <View style={[styles.avatarCircle, { backgroundColor: colors.accentNavy }]}>
+                <Text style={[styles.avatarInitials, { color: colors.textInverse }]}>
+                  {initials}
+                </Text>
+              </View>
+              <View style={styles.profileDetails}>
+                <Text style={[styles.userName, { color: colors.textPrimary }]} numberOfLines={1}>
+                  {displayName}
+                </Text>
+                <Text style={[styles.userEmail, { color: colors.textSecondary }]} numberOfLines={1}>
+                  {user?.email || 'Not signed in'}
+                </Text>
+                <View
+                  style={[
+                    styles.roleTag,
+                    {
+                      backgroundColor: colors.sentimentBullishSubtle,
+                      borderColor: colors.sentimentBullishBorder,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.roleText, { color: colors.sentimentBullish }]}>
+                    {user?.role || 'PRO_TRADER'}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Quick Trader Stats Strip */}
-          <View style={styles.statsStrip}>
-            <View style={styles.statCol}>
-              <View style={styles.statIconRow}>
-                <Award size={14} color={COLORS.sentimentBullish} />
-                <Text style={styles.statLabel}>WIN RATE</Text>
-              </View>
-              <Text style={styles.statVal}>82.0%</Text>
-            </View>
-
-            <View style={styles.statDivider} />
-
-            <View style={styles.statCol}>
-              <View style={styles.statIconRow}>
-                <TrendingUp size={14} color={COLORS.alertInfo} />
-                <Text style={styles.statLabel}>EVALUATED</Text>
-              </View>
-              <Text style={styles.statVal}>50 Events</Text>
-            </View>
-
-            <View style={styles.statDivider} />
-
-            <View style={styles.statCol}>
-              <View style={styles.statIconRow}>
-                <Activity size={14} color={COLORS.alertWarning} />
-                <Text style={styles.statLabel}>STATUS</Text>
-              </View>
-              <Text style={[styles.statVal, { color: COLORS.sentimentBullish }]}>Active</Text>
-            </View>
-          </View>
-
-          {/* Menu Items */}
-          <View style={styles.menuContainer}>
-            <Pressable
-              style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
-              onPress={navigateToSettings}
+            <View
+              style={[
+                styles.statsStrip,
+                {
+                  backgroundColor: colors.surfaceCard,
+                  borderColor: colors.borderSubtle,
+                },
+              ]}
             >
-              <Sliders size={18} color={COLORS.textPrimary} />
-              <Text style={styles.menuText}>Settings and Preferences</Text>
-            </Pressable>
+              <View style={styles.statCol}>
+                <Text style={[styles.statLabel, { color: colors.textMuted }]}>MODEL WIN RATE</Text>
+                <Text style={[styles.statVal, { color: colors.sentimentBullish }]}>
+                  {win_rate_percentage.toFixed(1)}%
+                </Text>
+              </View>
 
+              <View style={[styles.statDivider, { backgroundColor: colors.borderSubtle }]} />
+
+              <View style={styles.statCol}>
+                <Text style={[styles.statLabel, { color: colors.textMuted }]}>AUDITED EVENTS</Text>
+                <Text style={[styles.statVal, { color: colors.textPrimary }]}>
+                  {total_events_analyzed} Events
+                </Text>
+              </View>
+            </View>
+
+            <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>WORKSPACE</Text>
+
+            <View style={[styles.menuGroup, { borderColor: colors.borderSubtle }]}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  { borderBottomColor: colors.borderSubtle },
+                  pressed && { backgroundColor: colors.surfaceCard },
+                ]}
+                onPress={() => handleNavigate(ROUTES.MAIN_TABS, { screen: ROUTES.HISTORY })}
+                accessibilityRole="button"
+                accessibilityLabel="Open Prediction Accuracy and History"
+              >
+                <View style={styles.menuLeft}>
+                  <CheckCircle2 size={18} color={colors.sentimentBullish} />
+                  <View style={styles.menuTextBlock}>
+                    <Text style={[styles.menuText, { color: colors.textPrimary }]}>
+                      Prediction Accuracy Logs
+                    </Text>
+                    <Text style={[styles.menuSubtext, { color: colors.textSecondary }]}>
+                      {win_rate_percentage.toFixed(1)}% across {total_events_analyzed} releases
+                    </Text>
+                  </View>
+                </View>
+                <ChevronRight size={16} color={colors.textMuted} />
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  { borderBottomColor: colors.borderSubtle },
+                  pressed && { backgroundColor: colors.surfaceCard },
+                ]}
+                onPress={() => handleNavigate(ROUTES.NOTIFICATION)}
+                accessibilityRole="button"
+                accessibilityLabel="Open Notifications"
+              >
+                <View style={styles.menuLeft}>
+                  <Bell size={18} color={colors.textPrimary} />
+                  <View style={styles.menuTextBlock}>
+                    <Text style={[styles.menuText, { color: colors.textPrimary }]}>
+                      Notifications
+                    </Text>
+                    <Text style={[styles.menuSubtext, { color: colors.textSecondary }]}>
+                      {unreadCount > 0 ? `${unreadCount} unread macro alerts` : 'All alerts read'}
+                    </Text>
+                  </View>
+                </View>
+                <ChevronRight size={16} color={colors.textMuted} />
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  styles.menuItemLast,
+                  pressed && { backgroundColor: colors.surfaceCard },
+                ]}
+                onPress={() => handleNavigate(ROUTES.SETTINGS)}
+                accessibilityRole="button"
+                accessibilityLabel="Open Settings and Preferences"
+              >
+                <View style={styles.menuLeft}>
+                  <SlidersHorizontal size={18} color={colors.textPrimary} />
+                  <View style={styles.menuTextBlock}>
+                    <Text style={[styles.menuText, { color: colors.textPrimary }]}>
+                      Settings and Preferences
+                    </Text>
+                    <Text style={[styles.menuSubtext, { color: colors.textSecondary }]}>
+                      Theme, chart defaults, alerts, cache
+                    </Text>
+                  </View>
+                </View>
+                <ChevronRight size={16} color={colors.textMuted} />
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.drawerFooter}>
             <Pressable
-              style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+              style={({ pressed }) => [
+                styles.logoutButton,
+                {
+                  borderColor: colors.sentimentBearishBorder,
+                  backgroundColor: colors.sentimentBearishSubtle,
+                },
+                pressed && { opacity: 0.8 },
+              ]}
               onPress={handleLogout}
+              accessibilityRole="button"
+              accessibilityLabel="Log Out Account"
             >
-              <LogOut size={18} color={COLORS.sentimentBearish} />
-              <Text style={[styles.menuText, { color: COLORS.sentimentBearish }]}>
-                Sign Out from Device
+              <LogOut size={16} color={colors.sentimentBearish} />
+              <Text style={[styles.logoutText, { color: colors.sentimentBearish }]}>
+                Log Out Account
               </Text>
             </Pressable>
-          </View>
 
-          {/* Footer Version info */}
-          <View style={styles.drawerFooter}>
-            <Text style={styles.footerApp}>ForeCastFX Mobile</Text>
-            <Text style={styles.footerVersion}>Build 2026.09 • Native React Native</Text>
+            <Text style={[styles.footerMeta, { color: colors.textMuted }]}>
+              ForeCastFX Mobile v1.0.0 • Editorial Edition
+            </Text>
           </View>
         </View>
+
+        <Pressable
+          style={styles.scrim}
+          onPress={handleClose}
+          accessibilityLabel="Dismiss profile drawer"
+        />
       </View>
     </Modal>
   );
@@ -142,7 +261,6 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
     flexDirection: 'row',
   },
   scrim: {
@@ -152,160 +270,169 @@ const styles = StyleSheet.create({
     width: '82%',
     maxWidth: 340,
     height: '100%',
-    backgroundColor: COLORS.bgApp,
     borderRightWidth: 1,
-    borderRightColor: COLORS.borderSubtle,
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    paddingHorizontal: 18,
     justifyContent: 'space-between',
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
   },
   topBarTitle: {
     fontFamily: FONTS.mono,
     fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    letterSpacing: 0.5,
+    fontWeight: '600',
+    letterSpacing: 1.0,
   },
   closeBtn: {
-    padding: 4,
+    width: 44,
+    height: 44,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
+    gap: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderRadius: 6,
+    marginTop: 16,
   },
   avatarCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.surfaceElevated,
-    borderWidth: 1.5,
-    borderColor: COLORS.sentimentBullish,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarInitials: {
+    fontFamily: FONTS.serif,
+    fontSize: 18,
+    fontWeight: '700',
   },
   profileDetails: {
     flex: 1,
   },
   userName: {
-    fontFamily: FONTS.sans,
-    fontSize: 16,
+    fontFamily: FONTS.serif,
+    fontSize: 17,
     fontWeight: '700',
-    color: COLORS.textPrimary,
   },
   userEmail: {
     fontFamily: FONTS.sans,
     fontSize: 12,
-    color: COLORS.textSecondary,
     marginTop: 2,
   },
   roleTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: COLORS.sentimentBullishSubtle,
     alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: 3,
+    borderWidth: 1,
     marginTop: 6,
   },
   roleText: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.sentimentBullish,
+    fontWeight: '600',
+    letterSpacing: 0.4,
   },
   statsStrip: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 12,
+    borderRadius: 6,
     paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 18,
+    marginTop: 12,
+    marginBottom: 20,
   },
   statCol: {
     flex: 1,
-    alignItems: 'center',
-    gap: 2,
-  },
-  statIconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   statLabel: {
     fontFamily: FONTS.mono,
     fontSize: 9,
-    color: COLORS.textSecondary,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
   statVal: {
     fontFamily: FONTS.mono,
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginTop: 2,
+    ...TABULAR_NUMS,
   },
   statDivider: {
     width: 1,
-    height: 24,
-    backgroundColor: COLORS.borderSubtle,
+    height: 28,
+    marginHorizontal: 12,
   },
-  menuContainer: {
-    gap: 8,
-    flex: 1,
-    marginTop: 10,
+  sectionLabel: {
+    fontFamily: FONTS.mono,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.0,
+    marginBottom: 8,
+  },
+  menuGroup: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    backgroundColor: COLORS.surfaceCard,
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    minHeight: 54,
+    borderBottomWidth: 1,
   },
-  menuItemPressed: {
-    backgroundColor: COLORS.surfaceElevated,
+  menuItemLast: {
+    borderBottomWidth: 0,
+  },
+  menuLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  menuTextBlock: {
+    flex: 1,
   },
   menuText: {
     fontFamily: FONTS.sans,
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+  },
+  menuSubtext: {
+    fontFamily: FONTS.sans,
+    fontSize: 11,
+    marginTop: 1,
   },
   drawerFooter: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-    paddingTop: 16,
-    gap: 2,
+    gap: 12,
   },
-  footerApp: {
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    minHeight: 46,
+    borderRadius: 4,
+    borderWidth: 1,
+  },
+  logoutText: {
     fontFamily: FONTS.sans,
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
+    fontSize: 13,
+    fontWeight: '600',
   },
-  footerVersion: {
+  footerMeta: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    color: COLORS.textMuted,
+    textAlign: 'center',
   },
 });
-

@@ -2,11 +2,10 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Bell, User } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
 import { ROUTES } from '../../routes/routeNames';
 import { useMarketStore } from '../../store/useMarketStore';
-import { useUIStore } from '../../store/useUIStore';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
 
 interface TopAppBarProps {
   title?: string;
@@ -17,19 +16,22 @@ interface TopAppBarProps {
 
 export const TopAppBar: React.FC<TopAppBarProps> = ({
   title = 'ForeCastFX',
-  hasUnreadNotifications = true,
+  hasUnreadNotifications,
   onNotificationPress,
   onProfilePress,
 }) => {
   const navigation = useNavigation<any>();
+  const colors = useThemeColors();
   const isLiveConnected = useMarketStore((s) => s.isLiveConnected);
+  const unreadCount = useUIStore((s) => s.unreadNotificationsCount);
   const setProfileDrawerOpen = useUIStore((s) => s.setProfileDrawerOpen);
+
+  const showUnread = hasUnreadNotifications ?? unreadCount > 0;
 
   const handleNotificationPress = () => {
     if (onNotificationPress) {
       onNotificationPress();
     } else {
-      // Safe fallback navigation up to root stack
       navigation.getParent()?.navigate(ROUTES.NOTIFICATION) ?? navigation.navigate(ROUTES.NOTIFICATION);
     }
   };
@@ -43,54 +45,77 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      {/* Left Brand Title */}
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.bgApp,
+          borderBottomColor: colors.borderSubtle,
+        },
+      ]}
+    >
       <View style={styles.leftBrand}>
-        <Text style={styles.brandTitle}>{title}</Text>
-        <View style={styles.brandDot} />
+        <Text style={[styles.brandTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+          {title}
+        </Text>
       </View>
 
-      {/* Right Action Icons */}
       <View style={styles.rightActions}>
-        {/* Live Synced Status Pill */}
-        <View style={styles.liveStatusPill}>
+        {!isLiveConnected && (
           <View
             style={[
-              styles.statusPulseDot,
-              { backgroundColor: isLiveConnected ? COLORS.alertInfo : COLORS.alertWarning },
-            ]}
-          />
-          <Text
-            style={[
-              styles.statusText,
-              { color: isLiveConnected ? COLORS.alertInfo : COLORS.alertWarning },
+              styles.reconnectTag,
+              {
+                backgroundColor: colors.alertWarningSubtle,
+                borderColor: colors.alertWarningBorder,
+              },
             ]}
           >
-            {isLiveConnected ? 'Live Synced' : 'Reconnecting'}
-          </Text>
-        </View>
+            <Text style={[styles.reconnectText, { color: colors.alertWarning }]}>RECONNECTING</Text>
+          </View>
+        )}
 
-        {/* Notification Bell with unread dot placed outside icon body */}
         <Pressable
-          style={({ pressed }) => [styles.iconButton, pressed && styles.iconButtonPressed]}
+          style={({ pressed }) => [
+            styles.iconButton,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+            pressed && styles.iconButtonPressed,
+          ]}
           onPress={handleNotificationPress}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
-          accessibilityLabel="Notifications"
+          accessibilityLabel={showUnread ? 'Notifications, unread items available' : 'Notifications'}
         >
-          <Bell size={18} color={COLORS.textPrimary} />
-          {hasUnreadNotifications && <View style={styles.unreadDot} />}
+          <Bell size={18} color={colors.textPrimary} strokeWidth={1.8} />
+          {showUnread && (
+            <View
+              style={[
+                styles.unreadDot,
+                {
+                  backgroundColor: colors.sentimentBearish,
+                  borderColor: colors.bgApp,
+                },
+              ]}
+            />
+          )}
         </Pressable>
 
-        {/* User Profile Avatar */}
         <Pressable
-          style={({ pressed }) => [styles.profileAvatar, pressed && styles.iconButtonPressed]}
+          style={({ pressed }) => [
+            styles.profileAvatar,
+            {
+              backgroundColor: colors.accentNavy,
+              borderColor: colors.borderStrong,
+            },
+            pressed && styles.iconButtonPressed,
+          ]}
           onPress={handleProfilePress}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
-          accessibilityLabel="User Profile and Settings"
+          accessibilityLabel="Open account profile drawer"
         >
-          <User size={18} color={COLORS.textPrimary} />
+          <User size={18} color={colors.textInverse} strokeWidth={1.8} />
         </Pressable>
       </View>
     </View>
@@ -99,94 +124,67 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: 56,
+    height: 58,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.bgApp,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
   },
   leftBrand: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
+    paddingRight: 12,
   },
   brandTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 18,
+    fontFamily: FONTS.serif,
+    fontSize: 20,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.3,
-  },
-  brandDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.sentimentBullish,
-    marginLeft: 4,
+    letterSpacing: -0.2,
   },
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  liveStatusPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: COLORS.surfaceCard,
+  reconnectTag: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    gap: 5,
   },
-  statusPulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  statusText: {
+  reconnectText: {
     fontFamily: FONTS.mono,
     fontSize: 10,
     fontWeight: '600',
-    letterSpacing: 0.3,
+    letterSpacing: 0.4,
   },
   iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.surfaceCard,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   profileAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.surfaceElevated,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: COLORS.borderActive,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconButtonPressed: {
-    opacity: 0.75,
-    transform: [{ scale: 0.95 }],
+    opacity: 0.78,
   },
   unreadDot: {
     position: 'absolute',
-    top: 2,
-    right: 2,
+    top: 8,
+    right: 9,
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.sentimentBearish,
     borderWidth: 1.5,
-    borderColor: COLORS.surfaceCard,
   },
 });

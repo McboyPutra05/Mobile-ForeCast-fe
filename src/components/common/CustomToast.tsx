@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { AlertTriangle, CheckCircle, Info, XCircle, X } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
-import { useUIStore } from '../../store/useUIStore';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
 
 export const CustomToast: React.FC = () => {
+  const colors = useThemeColors();
   const toast = useUIStore((s) => s.toast);
   const hideToast = useUIStore((s) => s.hideToast);
 
@@ -22,42 +22,57 @@ export const CustomToast: React.FC = () => {
 
   if (!toast) return null;
 
+  const accentColor = (() => {
+    switch (toast.type) {
+      case 'success':
+        return colors.sentimentBullish;
+      case 'warning':
+        return colors.alertWarning;
+      case 'error':
+        return colors.sentimentBearish;
+      default:
+        return colors.accentNavy;
+    }
+  })();
+
   const renderIcon = () => {
     switch (toast.type) {
       case 'success':
-        return <CheckCircle size={20} color={COLORS.sentimentBullish} />;
+        return <CheckCircle size={18} color={accentColor} />;
       case 'warning':
-        return <AlertTriangle size={20} color={COLORS.alertWarning} />;
+        return <AlertTriangle size={18} color={accentColor} />;
       case 'error':
-        return <XCircle size={20} color={COLORS.sentimentBearish} />;
+        return <XCircle size={18} color={accentColor} />;
       case 'info':
       default:
-        return <Info size={20} color={COLORS.alertInfo} />;
-    }
-  };
-
-  const getBorderColor = () => {
-    switch (toast.type) {
-      case 'success':
-        return COLORS.sentimentBullish;
-      case 'warning':
-        return COLORS.alertWarning;
-      case 'error':
-        return COLORS.sentimentBearish;
-      default:
-        return COLORS.alertInfo;
+        return <Info size={18} color={accentColor} />;
     }
   };
 
   return (
-    <View style={[styles.container, { borderColor: getBorderColor() }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surfaceCard,
+          borderColor: colors.borderSubtle,
+          borderLeftColor: accentColor,
+        },
+      ]}
+      accessibilityLiveRegion="polite"
+    >
       <View style={styles.iconWrapper}>{renderIcon()}</View>
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{toast.title}</Text>
-        <Text style={styles.message}>{toast.message}</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>{toast.title}</Text>
+        <Text style={[styles.message, { color: colors.textSecondary }]}>{toast.message}</Text>
       </View>
-      <Pressable onPress={hideToast} hitSlop={10} style={styles.closeBtn}>
-        <X size={16} color={COLORS.textSecondary} />
+      <Pressable
+        onPress={hideToast}
+        style={styles.closeBtn}
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss alert"
+      >
+        <X size={16} color={colors.textSecondary} />
       </Pressable>
     </View>
   );
@@ -70,18 +85,18 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     zIndex: 9999,
-    backgroundColor: COLORS.surfaceElevated,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    paddingHorizontal: 16,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderLeftWidth: 3,
+    paddingHorizontal: 14,
     paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 24,
-    elevation: 10,
+    shadowColor: '#1C1917',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 5,
     gap: 12,
   },
   iconWrapper: {
@@ -91,24 +106,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontFamily: FONTS.serif,
+    fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textPrimary,
     marginBottom: 2,
   },
   message: {
     fontFamily: FONTS.sans,
     fontSize: 12,
-    color: COLORS.textSecondary,
-    lineHeight: 16,
+    lineHeight: 17,
   },
   closeBtn: {
-    padding: 6,
-    minWidth: 32,
-    minHeight: 32,
+    minWidth: 44,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
-

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { ROUTES } from './routeNames';
@@ -12,20 +12,27 @@ import { SettingsPage } from '../pages/settings';
 import { ProfileDrawer } from '../components/common/ProfileDrawer';
 import { CustomToast } from '../components/common/CustomToast';
 import { useAuthStore } from '../store/useAuthStore';
-import { COLORS } from '../constants/colors';
+import { useThemeColors } from '../store/useUIStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 export const RootNavigator = () => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const colors = useThemeColors();
+
+  const handleDrawerNavigate = (route: string, params?: Record<string, unknown>) => {
+    if (!navigationRef.isReady()) return;
+    (navigationRef as any).navigate(route, params);
+  };
 
   return (
-    <NavigationContainer>
-      <View style={styles.rootContainer}>
+    <NavigationContainer ref={navigationRef}>
+      <View style={[styles.rootContainer, { backgroundColor: colors.bgApp }]}>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: COLORS.bgApp },
+            contentStyle: { backgroundColor: colors.bgApp },
           }}
         >
           {!isAuthenticated ? (
@@ -58,10 +65,7 @@ export const RootNavigator = () => {
           )}
         </Stack.Navigator>
 
-        {/* Global Slide-out Drawer */}
-        <ProfileDrawer navigation={{ navigate: (name: any) => {} }} />
-
-        {/* Global Floating Toast Alert */}
+        <ProfileDrawer onNavigate={handleDrawerNavigate} />
         <CustomToast />
       </View>
     </NavigationContainer>
@@ -71,6 +75,5 @@ export const RootNavigator = () => {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
   },
 });

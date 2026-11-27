@@ -22,9 +22,8 @@ import { queryClient } from './src/api/queryClient';
 import { RootNavigator } from './src/routes/RootNavigator';
 import { useWebSocket } from './src/hooks/useWebSocket';
 import { useAuthStore } from './src/store/useAuthStore';
-import { COLORS } from './src/constants/colors';
+import { useThemeColors } from './src/store/useUIStore';
 
-// WebSocket Manager component placed inside providers
 function WebSocketLifecycleManager() {
   useWebSocket();
   return null;
@@ -32,8 +31,8 @@ function WebSocketLifecycleManager() {
 
 export default function App() {
   const restoreSession = useAuthStore((s) => s.restoreSession);
+  const colors = useThemeColors();
 
-  // Load custom typography through expo-font to avoid yellow warning banners
   const [fontsLoaded, fontError] = useFonts({
     Inter: Inter_400Regular,
     'Inter-Regular': Inter_400Regular,
@@ -54,8 +53,8 @@ export default function App() {
 
   if (!fontsLoaded && !fontError) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={COLORS.sentimentBullish} />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.bgApp }]}>
+        <ActivityIndicator size="small" color={colors.accentNavy} />
       </View>
     );
   }
@@ -64,7 +63,7 @@ export default function App() {
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <StatusBar style="light" />
+          <StatusBar style={colors.mode === 'dark' ? 'light' : 'dark'} />
           <WebSocketLifecycleManager />
           <RootNavigator />
         </QueryClientProvider>
@@ -79,7 +78,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
     alignItems: 'center',
     justifyContent: 'center',
   },
