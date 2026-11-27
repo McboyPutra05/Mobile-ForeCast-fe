@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
 import { TopAppBar } from '../../components/common/TopAppBar';
 import { BottomSheetWrapper } from '../../components/common/BottomSheetWrapper';
@@ -9,11 +10,10 @@ import {
   DateItem,
 } from '../../components/calendar';
 import { Badge } from '../../components/common/Badge';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
-import { ROUTES } from '../../routes/routeNames';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { CalendarEvent, ImpactLevel } from '../../types';
-import { MOCK_CALENDAR_EVENTS } from '../../api/calendar.api';
+import { calendarApi, MOCK_CALENDAR_EVENTS } from '../../api/calendar.api';
 
 const DATES_STRIP: DateItem[] = [
   { dayName: 'Mon', dayNum: '28' },
@@ -23,168 +23,217 @@ const DATES_STRIP: DateItem[] = [
   { dayName: 'Fri', dayNum: '01' },
 ];
 
-export const CalendarPage = ({ navigation }: any) => {
+type CalendarFilterMode = 'ALL' | 'HIGH' | 'MED_HIGH';
+
+export const CalendarPage = () => {
+  const colors = useThemeColors();
   const [selectedDate, setSelectedDate] = useState('30');
-  const [activeImpact, setActiveImpact] = useState<ImpactLevel>('ALL');
+  const [activeFilter, setActiveFilter] = useState<CalendarFilterMode>('ALL');
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
-  const filteredEvents = MOCK_CALENDAR_EVENTS.filter((item) => {
-    if (activeImpact === 'ALL') return true;
-    return item.impact === activeImpact;
+  const apiImpact: ImpactLevel = activeFilter === 'HIGH' ? 'HIGH' : 'ALL';
+
+  const { data: calendarRes, isLoading, isError, refetch } = useQuery({
+    queryKey: ['calendar', 'events', selectedDate, apiImpact],
+    queryFn: () => calendarApi.getEvents({ impact: apiImpact }),
+    staleTime: 30000,
   });
 
-  const navigateToNotification = () => {
-    navigation.getParent()?.navigate(ROUTES.NOTIFICATION) ?? navigation.navigate(ROUTES.NOTIFICATION);
-  };
+  const events = calendarRes?.data || MOCK_CALENDAR_EVENTS;
 
-  const navigateToSettings = () => {
-    navigation.getParent()?.navigate(ROUTES.SETTINGS) ?? navigation.navigate(ROUTES.SETTINGS);
+  const filteredEvents = events.filter((item) => {
+    if (activeFilter === 'ALL') return true;
+    if (activeFilter === 'HIGH') return item.impact === 'HIGH';
+    return item.impact === 'HIGH' || item.impact === 'MEDIUM';
+  });
+
+  const renderFilterChip = (mode: CalendarFilterMode, label: string) => {
+    const isActive = activeFilter === mode;
+    return (
+      <Pressable
+        key={mode}
+        style={({ pressed }) => [
+          styles.filterChip,
+          isActive
+            ? {
+                backgroundColor: colors.accentNavy,
+                borderColor: colors.accentNavy,
+              }
+            : {
+                backgroundColor: colors.surfaceCard,
+                borderColor: colors.borderSubtle,
+              },
+          pressed && { opacity: 0.84 },
+        ]}
+        onPress={() => setActiveFilter(mode)}
+        accessibilityRole="button"
+        accessibilityLabel={`Filter calendar by ${label}`}
+        accessibilityState={{ selected: isActive }}
+      >
+        <Text
+          style={[
+            styles.filterText,
+            { color: isActive ? colors.textInverse : colors.textSecondary },
+          ]}
+        >
+          {label}
+        </Text>
+      </Pressable>
+    );
   };
 
   return (
     <SafeScreenWrapper edges={['top']}>
-      <TopAppBar
-        title="ForeCastFX"
-        onNotificationPress={navigateToNotification}
-        onProfilePress={navigateToSettings}
-      />
+      <TopAppBar title="Economic Calendar" />
 
-      <View style={styles.container}>
-        {/* Modular Feature 1: Horizontal Date Picker Strip */}
+      <View style={[styles.container, { backgroundColor: colors.bgApp }]}>
         <DatePickerStrip
           dates={DATES_STRIP}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
         />
 
-        {/* Modular Feature 2: Benchmark Filter Impact Chips Bar */}
-        <View style={styles.filterBar}>
-          {/* ALL IMPACT */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.filterChip,
-              activeImpact === 'ALL' && styles.filterChipAllActive,
-              pressed && { opacity: 0.8 },
-            ]}
-            onPress={() => setActiveImpact('ALL')}
-            accessibilityRole="button"
-            accessibilityLabel="Filter all events"
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeImpact === 'ALL' && styles.filterTextAllActive,
-              ]}
-            >
-              All Impact
-            </Text>
-          </Pressable>
-
-          {/* HIGH IMPACT ONLY with red glowing dot */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.filterChip,
-              activeImpact === 'HIGH' ? styles.filterChipHighActive : styles.filterChipInactive,
-              pressed && { opacity: 0.8 },
-            ]}
-            onPress={() => setActiveImpact('HIGH')}
-            accessibilityRole="button"
-            accessibilityLabel="Filter high impact only"
-          >
-            <View style={styles.highImpactDot} />
-            <Text
-              style={[
-                styles.filterText,
-                activeImpact === 'HIGH' ? styles.filterTextHighActive : styles.filterTextHighInactive,
-              ]}
-            >
-              High Impact Only
-            </Text>
-          </Pressable>
-
-          {/* MEDIUM & HIGH */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.filterChip,
-              activeImpact === 'MEDIUM' ? styles.filterChipMedActive : styles.filterChipInactive,
-              pressed && { opacity: 0.8 },
-            ]}
-            onPress={() => setActiveImpact('MEDIUM')}
-            accessibilityRole="button"
-            accessibilityLabel="Filter medium and high"
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeImpact === 'MEDIUM' && styles.filterTextMedActive,
-              ]}
-            >
-              Medium & High
-            </Text>
-          </Pressable>
+        <View
+          style={[
+            styles.filterBar,
+            {
+              backgroundColor: colors.bgApp,
+              borderBottomColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          {renderFilterChip('ALL', 'All Impact')}
+          {renderFilterChip('HIGH', 'High Impact Only')}
+          {renderFilterChip('MED_HIGH', 'Medium & High')}
         </View>
 
-        {/* Modular Feature 3: Compact Schedule Event List */}
-        <FlatList
-          data={filteredEvents}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <CalendarEventRowCard
-              item={item}
-              onPress={() => setSelectedEvent(item)}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
+        {isLoading && !calendarRes ? (
+          <View style={styles.stateCenter}>
+            <ActivityIndicator size="small" color={colors.accentNavy} />
+            <Text style={[styles.stateText, { color: colors.textSecondary }]}>
+              Loading US macro schedule...
+            </Text>
+          </View>
+        ) : isError && !calendarRes ? (
+          <View style={styles.stateCenter}>
+            <Text style={[styles.stateTitle, { color: colors.textPrimary }]}>
+              Unable to load calendar events
+            </Text>
+            <Text style={[styles.stateText, { color: colors.textSecondary }]}>
+              Check your network connection and try refreshing.
+            </Text>
+            <Pressable
+              onPress={() => refetch()}
+              style={[styles.retryButton, { backgroundColor: colors.accentNavy }]}
+              accessibilityRole="button"
+              accessibilityLabel="Retry loading calendar"
+            >
+              <Text style={[styles.retryText, { color: colors.textInverse }]}>Retry</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredEvents}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <CalendarEventRowCard item={item} onPress={() => setSelectedEvent(item)} />
+            )}
+            ListEmptyComponent={
+              <View style={styles.stateCenter}>
+                <Text style={[styles.stateTitle, { color: colors.textPrimary }]}>
+                  No events match this filter
+                </Text>
+                <Text style={[styles.stateText, { color: colors.textSecondary }]}>
+                  Switch to All Impact to view every scheduled US macro release.
+                </Text>
+              </View>
+            }
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
 
-      {/* Leading Indicators / Event Detail Sheet */}
       <BottomSheetWrapper
         visible={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
         title={selectedEvent?.event_name || 'Event Detail'}
-        subtitle={`Release: ${selectedEvent?.release_time || ''} | Country: ${selectedEvent?.country || ''}`}
+        subtitle={`${selectedEvent?.country || 'USD'} • ${selectedEvent?.impact || 'HIGH'} IMPACT`}
       >
         {selectedEvent && (
           <View style={styles.detailSheetContent}>
             <View style={styles.detailMetaRow}>
               <View style={styles.detailMetaItem}>
-                <Text style={styles.detailMetaLabel}>IMPACT LEVEL</Text>
+                <Text style={[styles.detailMetaLabel, { color: colors.textMuted }]}>
+                  IMPACT LEVEL
+                </Text>
                 <Badge
                   label={selectedEvent.impact}
-                  variant={selectedEvent.impact === 'HIGH' ? 'bearish' : 'neutral'}
+                  variant={
+                    selectedEvent.impact === 'HIGH'
+                      ? 'bearish'
+                      : selectedEvent.impact === 'MEDIUM'
+                        ? 'warning'
+                        : 'neutral'
+                  }
                   size="sm"
                 />
               </View>
+
               {selectedEvent.has_prediction && selectedEvent.predicted_bias && (
                 <View style={styles.detailMetaItem}>
-                  <Text style={styles.detailMetaLabel}>PREDICTED BIAS</Text>
+                  <Text style={[styles.detailMetaLabel, { color: colors.textMuted }]}>
+                    FORECASTFX BIAS
+                  </Text>
                   <Badge
                     label={selectedEvent.predicted_bias}
-                    variant={selectedEvent.predicted_bias === 'GOOD FOR USD' ? 'bullish' : 'bearish'}
+                    variant={
+                      selectedEvent.predicted_bias === 'GOOD FOR USD' ? 'bullish' : 'bearish'
+                    }
                     size="sm"
                   />
                 </View>
               )}
             </View>
 
-            <View style={styles.metricsComparisonCard}>
+            <View
+              style={[
+                styles.metricsComparisonCard,
+                {
+                  backgroundColor: colors.surfaceCard,
+                  borderColor: colors.borderSubtle,
+                },
+              ]}
+            >
               <View style={styles.metricsRow}>
                 <View style={styles.metricBlock}>
-                  <Text style={styles.metricBlockLabel}>PREVIOUS</Text>
-                  <Text style={styles.metricBlockVal}>{selectedEvent.previous || 'N/A'}</Text>
+                  <Text style={[styles.metricBlockLabel, { color: colors.textMuted }]}>
+                    PREVIOUS
+                  </Text>
+                  <Text style={[styles.metricBlockVal, { color: colors.textSecondary }]}>
+                    {selectedEvent.previous || 'N/A'}
+                  </Text>
                 </View>
                 <View style={styles.metricBlock}>
-                  <Text style={styles.metricBlockLabel}>FORECAST</Text>
-                  <Text style={styles.metricBlockVal}>{selectedEvent.forecast || 'N/A'}</Text>
+                  <Text style={[styles.metricBlockLabel, { color: colors.textMuted }]}>
+                    FORECAST
+                  </Text>
+                  <Text style={[styles.metricBlockVal, { color: colors.textPrimary }]}>
+                    {selectedEvent.forecast || 'N/A'}
+                  </Text>
                 </View>
                 <View style={styles.metricBlock}>
-                  <Text style={styles.metricBlockLabel}>ACTUAL</Text>
+                  <Text style={[styles.metricBlockLabel, { color: colors.textMuted }]}>
+                    ACTUAL
+                  </Text>
                   <Text
                     style={[
                       styles.metricBlockVal,
-                      selectedEvent.actual ? { color: COLORS.sentimentBullish } : { color: COLORS.textMuted },
+                      {
+                        color: selectedEvent.actual
+                          ? colors.sentimentBullish
+                          : colors.textMuted,
+                      },
                     ]}
                   >
                     {selectedEvent.actual || 'Pending'}
@@ -193,9 +242,11 @@ export const CalendarPage = ({ navigation }: any) => {
               </View>
             </View>
 
-            <Text style={styles.correlationNoteTitle}>AI Engine Correlation Analysis</Text>
-            <Text style={styles.correlationNoteText}>
-              Data event ini diintegrasikan ke dalam pipeline Z-Score kuantitatif ForeCastFX untuk mengukur deviasi konsensus makro terhadap volatilitas aset forex.
+            <Text style={[styles.correlationNoteTitle, { color: colors.textPrimary }]}>
+              Model Integration Note
+            </Text>
+            <Text style={[styles.correlationNoteText, { color: colors.textSecondary }]}>
+              Scheduled US releases are ingested into the normalized Z-Score pipeline to track consensus surprise and cross-asset volatility across DXY and XAUUSD.
             </Text>
           </View>
         )}
@@ -207,7 +258,6 @@ export const CalendarPage = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
   },
   filterBar: {
     flexDirection: 'row',
@@ -216,94 +266,76 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
-    backgroundColor: COLORS.bgApp,
+    flexWrap: 'wrap',
   },
   filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 13,
-    paddingVertical: 6,
-    minHeight: 32,
-    borderRadius: 999,
-    backgroundColor: COLORS.surfaceCard,
+    paddingHorizontal: 12,
+    minHeight: 40,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-  },
-  filterChipInactive: {
-    backgroundColor: COLORS.surfaceCard,
-    borderColor: COLORS.borderSubtle,
-  },
-  filterChipAllActive: {
-    backgroundColor: COLORS.surfaceElevated,
-    borderColor: COLORS.borderHighlight,
-  },
-  filterChipHighActive: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderColor: 'rgba(239, 68, 68, 0.35)',
-  },
-  filterChipMedActive: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderColor: 'rgba(245, 158, 11, 0.35)',
-  },
-  highImpactDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#EF4444',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterText: {
     fontFamily: FONTS.sans,
     fontSize: 12,
-    color: COLORS.textSecondary,
-    fontWeight: '500',
-  },
-  filterTextAllActive: {
-    color: COLORS.textPrimary,
-    fontWeight: '600',
-  },
-  filterTextHighActive: {
-    color: '#EF4444',
-    fontWeight: '600',
-  },
-  filterTextHighInactive: {
-    color: COLORS.textSecondary,
-    fontWeight: '500',
-  },
-  filterTextMedActive: {
-    color: '#F59E0B',
     fontWeight: '600',
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 100,
-    gap: 10,
+    paddingBottom: 96,
+  },
+  stateCenter: {
+    paddingHorizontal: 24,
+    paddingVertical: 48,
+    alignItems: 'center',
+    gap: 8,
+  },
+  stateTitle: {
+    fontFamily: FONTS.serif,
+    fontSize: 17,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  stateText: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 19,
+  },
+  retryButton: {
+    marginTop: 8,
+    paddingHorizontal: 18,
+    minHeight: 44,
+    borderRadius: 4,
+    justifyContent: 'center',
+  },
+  retryText: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    fontWeight: '700',
   },
   detailSheetContent: {
-    paddingVertical: 8,
+    paddingVertical: 6,
     gap: 14,
   },
   detailMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 20,
+    flexWrap: 'wrap',
   },
   detailMetaItem: {
-    gap: 4,
+    gap: 5,
   },
   detailMetaLabel: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    color: COLORS.textMuted,
-    letterSpacing: 0.5,
+    fontWeight: '600',
+    letterSpacing: 0.6,
   },
   metricsComparisonCard: {
-    backgroundColor: COLORS.surfaceSecondary,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 12,
   },
   metricsRow: {
@@ -311,32 +343,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   metricBlock: {
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+    gap: 3,
   },
   metricBlockLabel: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    color: COLORS.textMuted,
+    fontWeight: '600',
   },
   metricBlockVal: {
     fontFamily: FONTS.mono,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginTop: 4,
+    ...TABULAR_NUMS,
   },
   correlationNoteTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontFamily: FONTS.serif,
+    fontSize: 15,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginTop: 4,
   },
   correlationNoteText: {
     fontFamily: FONTS.sans,
     fontSize: 13,
-    lineHeight: 18,
-    color: COLORS.textSecondary,
+    lineHeight: 19,
   },
 });

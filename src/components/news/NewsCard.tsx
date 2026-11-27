@@ -1,121 +1,149 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
-import { Clock } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { Badge } from '../common/Badge';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { NewsArticle } from '../../types';
 import { formatWIBDate } from '../../utils/date';
 
 interface NewsCardProps {
   item: NewsArticle;
+  isLead?: boolean;
   onPress?: () => void;
 }
 
-export const NewsCard: React.FC<NewsCardProps> = ({ item, onPress }) => {
+export const NewsCard: React.FC<NewsCardProps> = ({ item, isLead = false, onPress }) => {
+  const colors = useThemeColors();
   const isEditorial = item.type === 'ADMIN_ANALYSIS';
-  const authorInitials = item.author
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+
+  if (isLead) {
+    return (
+      <Pressable
+        style={({ pressed }) => [
+          styles.leadCard,
+          {
+            backgroundColor: colors.surfaceCard,
+            borderColor: colors.borderSubtle,
+          },
+          pressed && { opacity: 0.88 },
+        ]}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`Read lead article: ${item.title}`}
+      >
+        <View style={[styles.leadImageWrap, { backgroundColor: colors.surfaceElevated }]}>
+          <Image
+            source={{ uri: item.image_url }}
+            style={styles.leadImage}
+            resizeMode="cover"
+            accessibilityLabel={item.title}
+          />
+        </View>
+
+        <View style={styles.leadBody}>
+          <View style={styles.metaTop}>
+            <Badge
+              label={isEditorial ? 'Editorial Analysis' : 'Live Macro Feed'}
+              variant={isEditorial ? 'bullish' : 'navy'}
+              size="sm"
+            />
+            <Text style={[styles.metaMono, { color: colors.textMuted }]}>
+              {item.read_time_minutes} MIN READ
+            </Text>
+          </View>
+
+          <Text style={[styles.leadTitle, { color: colors.textPrimary }]} numberOfLines={3}>
+            {item.title}
+          </Text>
+
+          <Text style={[styles.leadSummary, { color: colors.textSecondary }]} numberOfLines={3}>
+            {item.summary}
+          </Text>
+
+          <View style={[styles.footerRow, { borderTopColor: colors.borderSubtle }]}>
+            <Text style={[styles.authorText, { color: colors.textPrimary }]} numberOfLines={1}>
+              {item.author}
+            </Text>
+            <Text style={[styles.metaMono, { color: colors.textMuted }]}>
+              {formatWIBDate(item.published_at)}
+            </Text>
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.articleCard, pressed && { opacity: 0.88 }]}
+      style={({ pressed }) => [
+        styles.rowCard,
+        {
+          borderBottomColor: colors.borderSubtle,
+          backgroundColor: pressed ? colors.surfaceCard : colors.bgApp,
+        },
+      ]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={item.title}
+      accessibilityLabel={`Read article: ${item.title}`}
     >
-      <View style={styles.thumbnailWrapper}>
-        <Image
-          source={{ uri: item.image_url }}
-          style={styles.thumbnail}
-          resizeMode="cover"
-        />
-        <View
-          style={[
-            styles.typePill,
-            {
-              backgroundColor: isEditorial
-                ? 'rgba(16, 185, 129, 0.88)'
-                : 'rgba(59, 130, 246, 0.88)',
-            },
-          ]}
-        >
-          <Text style={styles.typeText}>
-            {isEditorial ? 'Editorial Analysis' : 'Live Macro Feed'}
+      <View style={styles.rowTextCol}>
+        <View style={styles.rowMetaTop}>
+          <Text
+            style={[
+              styles.categoryTag,
+              {
+                color: isEditorial ? colors.sentimentBullish : colors.textSecondary,
+              },
+            ]}
+          >
+            {isEditorial ? 'EDITORIAL ANALYSIS' : 'MACRO FEED'}
+          </Text>
+          <Text style={[styles.metaMono, { color: colors.textMuted }]}>
+            {formatWIBDate(item.published_at)}
           </Text>
         </View>
-      </View>
 
-      <View style={styles.cardContent}>
-        <View style={styles.metaTop}>
-          <Text style={styles.categoryTag}>
-            {isEditorial ? 'CENTRAL BANK & INFLATION' : 'GLOBAL MACRO FLOW'}
-          </Text>
-          <View style={styles.readTime}>
-            <Clock size={11} color={COLORS.textSecondary} />
-            <Text style={styles.readTimeText}>{item.read_time_minutes} min read</Text>
-          </View>
-        </View>
-
-        <Text style={styles.title} numberOfLines={2}>
+        <Text style={[styles.rowTitle, { color: colors.textPrimary }]} numberOfLines={2}>
           {item.title}
         </Text>
 
-        <Text style={styles.summary} numberOfLines={2}>
+        <Text style={[styles.rowSummary, { color: colors.textSecondary }]} numberOfLines={2}>
           {item.summary}
         </Text>
 
-        <View style={styles.footerRow}>
-          <View style={styles.authorGroup}>
-            <View style={styles.avatarCircle}>
-              <Text style={styles.avatarText}>{authorInitials}</Text>
-            </View>
-            <Text style={styles.author}>{item.author}</Text>
-          </View>
-          <Text style={styles.date}>{formatWIBDate(item.published_at)}</Text>
-        </View>
+        <Text style={[styles.rowByline, { color: colors.textMuted }]} numberOfLines={1}>
+          {item.author} • {item.read_time_minutes} min read
+        </Text>
       </View>
+
+      <Image
+        source={{ uri: item.image_url }}
+        style={[styles.rowThumb, { backgroundColor: colors.surfaceCard }]}
+        resizeMode="cover"
+        accessibilityLabel={item.title}
+      />
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  articleCard: {
-    backgroundColor: COLORS.surfaceCard,
+  leadCard: {
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 14,
+    borderRadius: 4,
     overflow: 'hidden',
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 8,
   },
-  thumbnailWrapper: {
+  leadImageWrap: {
     width: '100%',
-    height: 150,
-    position: 'relative',
-    backgroundColor: COLORS.surfaceElevated,
+    height: 176,
   },
-  thumbnail: {
+  leadImage: {
     width: '100%',
     height: '100%',
   },
-  typePill: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  typeText: {
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textTransform: 'uppercase',
-  },
-  cardContent: {
+  leadBody: {
     padding: 14,
     gap: 8,
   },
@@ -123,78 +151,84 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
   },
-  categoryTag: {
+  metaMono: {
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: 10,
+    fontWeight: '600',
+    ...TABULAR_NUMS,
+  },
+  leadTitle: {
+    fontFamily: FONTS.serif,
+    fontSize: 20,
+    lineHeight: 26,
     fontWeight: '700',
-    color: COLORS.sentimentBullish,
-    letterSpacing: 0.5,
   },
-  readTime: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  readTimeText: {
+  leadSummary: {
     fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: COLORS.textSecondary,
-  },
-  title: {
-    fontFamily: FONTS.sans,
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+    fontSize: 14,
     lineHeight: 20,
-  },
-  summary: {
-    fontFamily: FONTS.sans,
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
   },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 8,
+    paddingTop: 10,
+    marginTop: 2,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-    marginTop: 4,
+    gap: 8,
   },
-  authorGroup: {
+  authorText: {
+    fontFamily: FONTS.sans,
+    fontSize: 12,
+    fontWeight: '600',
+    flex: 1,
+  },
+  rowCard: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  rowTextCol: {
+    flex: 1,
+    gap: 5,
+  },
+  rowMetaTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    gap: 8,
   },
-  avatarCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: COLORS.surfaceElevated,
-    borderWidth: 1,
-    borderColor: COLORS.borderHighlight,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
+  categoryTag: {
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    letterSpacing: 0.6,
   },
-  author: {
+  rowTitle: {
+    fontFamily: FONTS.serif,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '700',
+  },
+  rowSummary: {
     fontFamily: FONTS.sans,
-    fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
+    fontSize: 13,
+    lineHeight: 18,
   },
-  date: {
+  rowByline: {
     fontFamily: FONTS.mono,
-    fontSize: 11,
-    color: COLORS.textSecondary,
+    fontSize: 10,
+    marginTop: 2,
+  },
+  rowThumb: {
+    width: 78,
+    height: 78,
+    borderRadius: 4,
+    marginTop: 4,
   },
 });
-
-

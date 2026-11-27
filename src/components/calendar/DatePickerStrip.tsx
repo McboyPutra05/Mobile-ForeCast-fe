@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ScrollView, Pressable, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 
 export interface DateItem {
   dayName: string;
@@ -20,8 +20,18 @@ export const DatePickerStrip: React.FC<DatePickerStripProps> = ({
   selectedDate,
   onSelectDate,
 }) => {
+  const colors = useThemeColors();
+
   return (
-    <View style={styles.dateStripWrapper}>
+    <View
+      style={[
+        styles.dateStripWrapper,
+        {
+          backgroundColor: colors.bgApp,
+          borderBottomColor: colors.borderSubtle,
+        },
+      ]}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -34,19 +44,26 @@ export const DatePickerStrip: React.FC<DatePickerStripProps> = ({
               key={d.dayNum}
               style={({ pressed }) => [
                 styles.datePill,
-                isSelected ? styles.datePillActive : styles.datePillInactive,
-                pressed && { opacity: 0.8 },
+                isSelected
+                  ? {
+                      backgroundColor: colors.accentNavy,
+                      borderColor: colors.accentNavy,
+                    }
+                  : {
+                      backgroundColor: colors.surfaceCard,
+                      borderColor: colors.borderSubtle,
+                    },
+                pressed && { opacity: 0.84 },
               ]}
               onPress={() => onSelectDate(d.dayNum)}
               accessibilityRole="button"
-              accessibilityLabel={`${d.dayName} ${d.dayNum}`}
+              accessibilityLabel={`${d.dayName} ${d.dayNum}${d.isToday ? ', today' : ''}`}
               accessibilityState={{ selected: isSelected }}
-              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
             >
               <Text
                 style={[
                   styles.dayName,
-                  isSelected ? styles.dayNameActive : styles.dayNameInactive,
+                  { color: isSelected ? colors.textInverse : colors.textSecondary },
                 ]}
               >
                 {d.dayName}
@@ -54,7 +71,7 @@ export const DatePickerStrip: React.FC<DatePickerStripProps> = ({
               <Text
                 style={[
                   styles.dayNum,
-                  isSelected ? styles.dayNumActive : styles.dayNumInactive,
+                  { color: isSelected ? colors.textInverse : colors.textPrimary },
                 ]}
               >
                 {d.dayNum}
@@ -62,8 +79,10 @@ export const DatePickerStrip: React.FC<DatePickerStripProps> = ({
               {d.isToday && (
                 <View
                   style={[
-                    styles.todayDot,
-                    isSelected ? styles.todayDotActive : styles.todayDotInactive,
+                    styles.todayMarker,
+                    {
+                      backgroundColor: isSelected ? colors.textInverse : colors.sentimentBullish,
+                    },
                   ]}
                 />
               )}
@@ -79,9 +98,7 @@ const styles = StyleSheet.create({
   dateStripWrapper: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: COLORS.bgApp,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
   },
   dateStrip: {
     gap: 8,
@@ -92,58 +109,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 999,
-  },
-  datePillInactive: {
-    backgroundColor: COLORS.surfaceCard,
+    minHeight: 44,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-  },
-  datePillActive: {
-    backgroundColor: COLORS.sentimentBullish,
-    borderWidth: 1,
-    borderColor: COLORS.sentimentBullish,
-    shadowColor: COLORS.sentimentBullish,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 3,
   },
   dayName: {
     fontFamily: FONTS.sans,
     fontSize: 12,
-  },
-  dayNameInactive: {
-    color: COLORS.textSecondary,
     fontWeight: '500',
-  },
-  dayNameActive: {
-    color: '#003824',
-    fontWeight: '700',
   },
   dayNum: {
     fontFamily: FONTS.mono,
     fontSize: 13,
-  },
-  dayNumInactive: {
-    color: COLORS.textPrimary,
-    fontWeight: '600',
-  },
-  dayNumActive: {
-    color: '#003824',
     fontWeight: '700',
+    ...TABULAR_NUMS,
   },
-  todayDot: {
+  todayMarker: {
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    marginLeft: 1,
-  },
-  todayDotInactive: {
-    backgroundColor: COLORS.sentimentBullish,
-  },
-  todayDotActive: {
-    backgroundColor: '#003824',
   },
 });

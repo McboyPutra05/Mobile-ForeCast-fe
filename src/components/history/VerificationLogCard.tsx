@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Badge } from '../common/Badge';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { EditorialDivider } from '../common/EditorialDivider';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { HistoryLogItem } from '../../types';
 import { formatWIBDate } from '../../utils/date';
 
@@ -18,85 +19,93 @@ export const VerificationLogCard: React.FC<VerificationLogCardProps> = ({
   isExpanded,
   onToggleExpand,
 }) => {
+  const colors = useThemeColors();
   const isHit = item.status === 'HIT';
 
   return (
-    <View style={styles.logCard}>
-      {/* Header Row: Status icon + Event + Hit/Miss Badge + Accordion chevron */}
-      <Pressable
-        style={styles.logCardHeader}
-        onPress={onToggleExpand}
-        accessibilityRole="button"
-        accessibilityLabel={`${item.event_name} verification details`}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <View style={styles.logHeaderLeft}>
-          <View
+    <View
+      style={[
+        styles.logCard,
+        {
+          backgroundColor: colors.surfaceCard,
+          borderColor: colors.borderSubtle,
+        },
+      ]}
+    >
+      <View style={styles.headerRow}>
+        <View style={styles.titleBlock}>
+          <Text style={[styles.logDate, { color: colors.textMuted }]}>
+            {formatWIBDate(item.release_date)}
+          </Text>
+          <Text style={[styles.logEventName, { color: colors.textPrimary }]}>
+            {item.event_name}
+          </Text>
+        </View>
+        <Badge label={isHit ? 'HIT' : 'MISS'} variant={isHit ? 'bullish' : 'bearish'} size="sm" />
+      </View>
+
+      <EditorialDivider />
+
+      <View style={styles.comparisonBlock}>
+        <View style={styles.compRow}>
+          <Text style={[styles.compLabel, { color: colors.textMuted }]}>PREDICTED BIAS</Text>
+          <Text
             style={[
-              styles.statusCircle,
+              styles.compBias,
               {
-                backgroundColor: isHit
-                  ? COLORS.sentimentBullishSubtle
-                  : COLORS.sentimentBearishSubtle,
-                borderColor: isHit
-                  ? COLORS.sentimentBullishBorder
-                  : COLORS.sentimentBearishBorder,
+                color:
+                  item.predicted_bias === 'GOOD FOR USD'
+                    ? colors.sentimentBullish
+                    : colors.sentimentBearish,
               },
             ]}
           >
-            {isHit ? (
-              <CheckCircle2 size={16} color={COLORS.sentimentBullish} />
-            ) : (
-              <XCircle size={16} color={COLORS.sentimentBearish} />
-            )}
-          </View>
-
-          <View style={styles.logTitleBlock}>
-            <Text style={styles.logEventName}>{item.event_name}</Text>
-            <Text style={styles.logDate}>{formatWIBDate(item.release_date)}</Text>
-          </View>
+            {item.predicted_bias}
+          </Text>
         </View>
 
-        <View style={styles.logHeaderRight}>
-          <Badge
-            label={isHit ? '✓ ACCURATE / HIT' : '✕ MISS'}
-            variant={isHit ? 'bullish' : 'bearish'}
-            size="sm"
-          />
-          <View style={styles.chevronWrapper}>
-            {isExpanded ? (
-              <ChevronUp size={16} color={COLORS.textSecondary} />
-            ) : (
-              <ChevronDown size={16} color={COLORS.textSecondary} />
-            )}
-          </View>
-        </View>
-      </Pressable>
-
-      {/* Comparative Data Matrix (Section 6.E.3) */}
-      <View style={styles.comparativeMatrix}>
-        <View style={styles.matrixRow}>
-          <Text style={styles.matrixRowLabel}>PREDICTED BIAS</Text>
-          <Badge
-            label={item.predicted_bias}
-            variant={item.predicted_bias === 'GOOD FOR USD' ? 'bullish' : 'bearish'}
-            size="sm"
-          />
-        </View>
-        <View style={styles.matrixDivider} />
-        <View style={styles.matrixRow}>
-          <Text style={styles.matrixRowLabel}>MARKET OUTCOME</Text>
-          <Text style={styles.outcomeValue} numberOfLines={2}>
+        <View style={styles.compRow}>
+          <Text style={[styles.compLabel, { color: colors.textMuted }]}>MARKET REACTION</Text>
+          <Text style={[styles.compOutcome, { color: colors.textPrimary }]}>
             {item.actual_market_outcome}
           </Text>
         </View>
       </View>
 
-      {/* Expandable Accordion: AI Pre-release Reasoning Recap */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.accordionBtn,
+          { borderTopColor: colors.borderSubtle },
+          pressed && { opacity: 0.75 },
+        ]}
+        onPress={onToggleExpand}
+        accessibilityRole="button"
+        accessibilityLabel={`Review AI pre-release reasoning for ${item.event_name}`}
+        accessibilityState={{ expanded: isExpanded }}
+      >
+        <Text style={[styles.accordionLabel, { color: colors.textPrimary }]}>
+          Review AI Pre-Release Reasoning
+        </Text>
+        {isExpanded ? (
+          <ChevronUp size={16} color={colors.textSecondary} />
+        ) : (
+          <ChevronDown size={16} color={colors.textSecondary} />
+        )}
+      </Pressable>
+
       {isExpanded && (
-        <View style={styles.accordionBody}>
-          <Text style={styles.reasoningTitle}>AI Pre-Release Reasoning Analysis:</Text>
-          <Text style={styles.reasoningText}>{item.reasoning_recap}</Text>
+        <View
+          style={[
+            styles.accordionBody,
+            {
+              backgroundColor: colors.bgApp,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <Text style={[styles.reasoningText, { color: colors.textSecondary }]}>
+            {item.reasoning_recap}
+          </Text>
         </View>
       )}
     </View>
@@ -105,112 +114,82 @@ export const VerificationLogCard: React.FC<VerificationLogCardProps> = ({
 
 const styles = StyleSheet.create({
   logCard: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 14,
+    borderRadius: 4,
     padding: 14,
-    gap: 12,
-  },
-  logCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 44,
-  },
-  logHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 10,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  titleBlock: {
     flex: 1,
-  },
-  statusCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logTitleBlock: {
-    flex: 1,
-  },
-  logEventName: {
-    fontFamily: FONTS.sans,
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+    gap: 2,
   },
   logDate: {
     fontFamily: FONTS.mono,
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 2,
+    fontSize: 10,
+    fontWeight: '600',
+    ...TABULAR_NUMS,
   },
-  logHeaderRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  logEventName: {
+    fontFamily: FONTS.serif,
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: '700',
+  },
+  comparisonBlock: {
     gap: 8,
   },
-  chevronWrapper: {
-    width: 28,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  comparativeMatrix: {
-    backgroundColor: COLORS.surfaceElevated,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 10,
-    padding: 10,
-    gap: 8,
-  },
-  matrixRow: {
+  compRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    gap: 12,
   },
-  matrixDivider: {
-    height: 1,
-    backgroundColor: COLORS.borderSubtle,
-  },
-  matrixRowLabel: {
+  compLabel: {
     fontFamily: FONTS.mono,
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.textMuted,
     letterSpacing: 0.5,
   },
-  outcomeValue: {
+  compBias: {
     fontFamily: FONTS.mono,
     fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
+    fontWeight: '700',
+  },
+  compOutcome: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    fontWeight: '500',
     flex: 1,
     textAlign: 'right',
-    marginLeft: 8,
+    lineHeight: 18,
+  },
+  accordionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    paddingTop: 10,
+    minHeight: 44,
+  },
+  accordionLabel: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    fontWeight: '600',
   },
   accordionBody: {
-    backgroundColor: COLORS.surfaceSecondary,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 10,
+    borderRadius: 4,
     padding: 12,
-    gap: 6,
-  },
-  reasoningTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.sentimentBullish,
   },
   reasoningText: {
     fontFamily: FONTS.sans,
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
+    fontSize: 13,
+    lineHeight: 20,
   },
 });
-
-

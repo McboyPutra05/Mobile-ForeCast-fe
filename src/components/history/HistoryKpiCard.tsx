@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Award } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { AccuracyBreakdown, AccuracyKPI } from '../../types';
 
 interface HistoryKpiCardProps {
@@ -14,43 +13,68 @@ export const HistoryKpiCard: React.FC<HistoryKpiCardProps> = ({
   summaryKpi,
   breakdownByEvent,
 }) => {
+  const colors = useThemeColors();
+
   return (
-    <View style={styles.kpiCard}>
-      <View style={styles.kpiHeader}>
-        <View style={styles.kpiTitleRow}>
-          <Award size={18} color={COLORS.sentimentBullish} />
-          <Text style={styles.kpiTitle}>Historical Model Performance</Text>
-        </View>
-        <View style={styles.verifiedBadge}>
-          <Text style={styles.verifiedText}>Independent Audit</Text>
-        </View>
-      </View>
-
+    <View style={styles.wrapper}>
       <View style={styles.kpiGrid}>
-        <View style={styles.kpiCol}>
-          <Text style={styles.kpiLabel}>OVERALL WIN RATE</Text>
-          <Text style={styles.kpiWinRate}>{summaryKpi.win_rate_percentage}%</Text>
-          <Text style={styles.kpiSub}>Based on 15m DXY post-release</Text>
-        </View>
-
-        <View style={styles.kpiCol}>
-          <Text style={styles.kpiLabel}>EVALUATED EVENTS</Text>
-          <Text style={styles.kpiTotal}>{summaryKpi.total_events_analyzed}</Text>
-          <Text style={styles.kpiSub}>
-            <Text style={{ color: COLORS.sentimentBullish, fontWeight: '700' }}>
+        <View
+          style={[
+            styles.kpiBlock,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <Text style={[styles.kpiLabel, { color: colors.textMuted }]}>EVALUATED EVENTS</Text>
+          <Text style={[styles.kpiTotal, { color: colors.textPrimary }]}>
+            {summaryKpi.total_events_analyzed}
+          </Text>
+          <Text style={[styles.kpiSub, { color: colors.textSecondary }]}>
+            <Text style={{ color: colors.sentimentBullish, fontWeight: '700' }}>
               {summaryKpi.accurate_hits} Hits
             </Text>{' '}
-            / {summaryKpi.misses} Miss
+            / {summaryKpi.misses} Misses
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.kpiBlock,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <Text style={[styles.kpiLabel, { color: colors.textMuted }]}>OVERALL WIN RATE</Text>
+          <Text style={[styles.kpiWinRate, { color: colors.sentimentBullish }]}>
+            {summaryKpi.win_rate_percentage.toFixed(1)}%
+          </Text>
+          <Text style={[styles.kpiSub, { color: colors.textSecondary }]}>
+            15m DXY post-release audit
           </Text>
         </View>
       </View>
 
-      {/* Breakdown Per Event Type Pills */}
-      <View style={styles.breakdownRow}>
+      <View
+        style={[
+          styles.breakdownRow,
+          {
+            borderTopColor: colors.borderSubtle,
+            borderBottomColor: colors.borderSubtle,
+          },
+        ]}
+      >
         {breakdownByEvent.slice(0, 3).map((item, idx) => (
-          <View key={idx} style={styles.breakdownItem}>
-            <Text style={styles.breakdownName}>{item.event}</Text>
-            <Text style={styles.breakdownRate}>{item.win_rate}%</Text>
+          <View key={`${item.event}-${idx}`} style={styles.breakdownItem}>
+            <Text style={[styles.breakdownName, { color: colors.textSecondary }]} numberOfLines={1}>
+              {item.event}
+            </Text>
+            <Text style={[styles.breakdownRate, { color: colors.sentimentBullish }]}>
+              {item.win_rate}% ({item.total})
+            </Text>
           </View>
         ))}
       </View>
@@ -59,107 +83,67 @@ export const HistoryKpiCard: React.FC<HistoryKpiCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  kpiCard: {
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
-    padding: 16,
-    gap: 14,
-  },
-  kpiHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  kpiTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  kpiTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  verifiedBadge: {
-    backgroundColor: COLORS.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 999,
-  },
-  verifiedText: {
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    fontWeight: '600',
-    color: COLORS.sentimentBullish,
+  wrapper: {
+    gap: 12,
   },
   kpiGrid: {
     flexDirection: 'row',
     gap: 12,
   },
-  kpiCol: {
+  kpiBlock: {
     flex: 1,
-    backgroundColor: COLORS.surfaceElevated,
-    borderRadius: 12,
-    padding: 12,
-    gap: 2,
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 14,
+    gap: 3,
   },
   kpiLabel: {
     fontFamily: FONTS.mono,
-    fontSize: 9,
-    color: COLORS.textSecondary,
-    letterSpacing: 0.5,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.6,
   },
   kpiWinRate: {
-    fontFamily: FONTS.sans,
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: '800',
-    color: COLORS.sentimentBullish,
+    fontFamily: FONTS.serif,
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: '700',
     marginTop: 2,
-    letterSpacing: -0.5,
+    ...TABULAR_NUMS,
   },
   kpiTotal: {
     fontFamily: FONTS.mono,
     fontSize: 28,
     lineHeight: 34,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
+    fontWeight: '700',
     marginTop: 2,
+    ...TABULAR_NUMS,
   },
   kpiSub: {
     fontFamily: FONTS.sans,
-    fontSize: 10,
-    color: COLORS.textSecondary,
+    fontSize: 11,
     marginTop: 2,
   },
   breakdownRow: {
     flexDirection: 'row',
-    gap: 8,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-    paddingTop: 10,
+    borderBottomWidth: 1,
+    paddingVertical: 10,
+    gap: 8,
   },
   breakdownItem: {
     flex: 1,
-    backgroundColor: COLORS.surfaceSecondary,
-    borderRadius: 8,
-    padding: 8,
-    alignItems: 'center',
+    gap: 2,
   },
   breakdownName: {
     fontFamily: FONTS.sans,
-    fontSize: 10,
-    color: COLORS.textSecondary,
+    fontSize: 11,
+    fontWeight: '500',
   },
   breakdownRate: {
     fontFamily: FONTS.mono,
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.sentimentBullish,
-    marginTop: 2,
+    ...TABULAR_NUMS,
   },
 });
-
