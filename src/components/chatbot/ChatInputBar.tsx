@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { ArrowUp } from 'lucide-react-native';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 
 interface ChatInputBarProps {
   value: string;
@@ -17,29 +17,57 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
   onSend,
   loading = false,
 }) => {
+  const colors = useThemeColors();
   const canSend = value.trim().length > 0 && !loading;
 
   return (
-    <View style={styles.inputBar}>
+    <View
+      style={[
+        styles.inputBar,
+        {
+          backgroundColor: colors.bgApp,
+          borderTopColor: colors.borderSubtle,
+        },
+      ]}
+    >
       <TextInput
-        style={styles.textInput}
-        placeholder="Tanyakan alasan prediksi makro..."
-        placeholderTextColor={COLORS.textMuted}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: colors.surfaceCard,
+            borderColor: colors.borderSubtle,
+            color: colors.textPrimary,
+          },
+        ]}
+        placeholder="Ask about CPI drivers, DXY, or XAUUSD..."
+        placeholderTextColor={colors.textMuted}
         value={value}
         onChangeText={onChangeText}
-        multiline={false}
+        returnKeyType="send"
+        onSubmitEditing={() => {
+          if (canSend) onSend();
+        }}
+        accessibilityLabel="Macro question input"
       />
 
       <Pressable
         style={({ pressed }) => [
           styles.sendButton,
-          !canSend && { opacity: 0.5 },
-          pressed && { transform: [{ scale: 0.95 }] },
+          { backgroundColor: colors.accentNavy },
+          !canSend && { opacity: 0.45 },
+          pressed && canSend && { opacity: 0.85 },
         ]}
         onPress={onSend}
         disabled={!canSend}
+        accessibilityRole="button"
+        accessibilityLabel="Send question"
+        accessibilityState={{ disabled: !canSend }}
       >
-        <ArrowUp size={20} color={COLORS.textInverse} />
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.textInverse} />
+        ) : (
+          <ArrowUp size={20} color={colors.textInverse} />
+        )}
       </Pressable>
     </View>
   );
@@ -51,30 +79,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: COLORS.bgApp,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
     gap: 10,
   },
   textInput: {
     flex: 1,
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderRadius: 4,
+    paddingHorizontal: 14,
+    minHeight: 44,
     fontFamily: FONTS.sans,
     fontSize: 14,
-    color: COLORS.textPrimary,
   },
   sendButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.sentimentBullish,
+    borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
-

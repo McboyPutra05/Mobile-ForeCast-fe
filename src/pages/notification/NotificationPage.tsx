@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
-import { ArrowLeft, AlertTriangle, Zap, TrendingUp } from 'lucide-react-native';
+import { ChevronLeft, AlertTriangle, TrendingUp, CheckCircle2 } from 'lucide-react-native';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
+import { useThemeColors, useUIStore } from '../../store/useUIStore';
 
 interface NotificationItem {
   id: string;
@@ -14,39 +14,38 @@ interface NotificationItem {
   isUnread?: boolean;
 }
 
-const MOCK_NOTIFICATIONS: NotificationItem[] = [
+const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'n1',
-    title: 'High-Alert Mode Activated: US CPI in 45m',
+    title: 'High-Alert Window: US CPI in 45m',
     description:
-      'Dynamic Redis TTL switched to 3-second rapid polling. Volatility bands expanding on XAUUSD.',
+      'Dynamic Redis TTL switched to rapid polling. Volatility bands expanding on DXY and XAUUSD.',
     time: '45m ago',
     type: 'HIGH_VOLATILITY',
     isUnread: true,
   },
   {
     id: 'n2',
-    title: 'Data Release: ISM Manufacturing Prices Paid',
+    title: 'Leading Indicator: ISM Manufacturing Prices Paid',
     description:
-      'Actual: 55.4 vs Prev 52.8. Hawkish bias validated for upcoming CPI release.',
+      'Actual 55.4 vs Prev 52.8. Hawkish input pressure logged for the upcoming CPI briefing.',
     time: '2h ago',
     type: 'EVENT_ALERT',
     isUnread: true,
   },
   {
     id: 'n3',
-    title: 'Intermarket Divergence Alert (USOIL)',
+    title: 'Intermarket Move: WTI Crude Oil +1.91%',
     description:
-      'WTI Crude Oil surged +1.91% today, exceeding the upper volatility barrier.',
+      'USOIL moved above $77.10, reinforcing headline inflation weight (35%).',
     time: '5h ago',
     type: 'EVENT_ALERT',
     isUnread: false,
   },
   {
     id: 'n4',
-    title: 'Accuracy Model Update: 82.0% Overall Win Rate',
-    description:
-      '50 institutional macro events evaluated with 41 accurate hits.',
+    title: 'Accuracy Audit: 82.0% Overall Win Rate',
+    description: '50 historical macro releases evaluated with 41 accurate directional hits.',
     time: '1d ago',
     type: 'SYSTEM',
     isUnread: false,
@@ -54,51 +53,125 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = [
 ];
 
 export const NotificationPage = ({ navigation }: any) => {
+  const colors = useThemeColors();
+  const setUnreadNotificationsCount = useUIStore((s) => s.setUnreadNotificationsCount);
+  const [items, setItems] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+
+  const handleItemPress = (id: string) => {
+    setItems((prev) => {
+      const updated = prev.map((n) => (n.id === id ? { ...n, isUnread: false } : n));
+      setUnreadNotificationsCount(updated.filter((n) => n.isUnread).length);
+      return updated;
+    });
+  };
+
   const renderItem = ({ item }: { item: NotificationItem }) => {
+    const iconColor =
+      item.type === 'HIGH_VOLATILITY'
+        ? colors.alertWarning
+        : item.type === 'EVENT_ALERT'
+          ? colors.sentimentBullish
+          : colors.accentNavy;
+
+    const iconBg =
+      item.type === 'HIGH_VOLATILITY'
+        ? colors.alertWarningSubtle
+        : item.type === 'EVENT_ALERT'
+          ? colors.sentimentBullishSubtle
+          : colors.surfaceCard;
+
     return (
-      <View style={[styles.itemContainer, item.isUnread && styles.itemUnread]}>
-        <View style={styles.iconCircle}>
+      <Pressable
+        style={({ pressed }) => [
+          styles.itemContainer,
+          {
+            borderBottomColor: colors.borderSubtle,
+            backgroundColor: item.isUnread
+              ? colors.surfaceCard
+              : pressed
+                ? colors.surfaceCard
+                : colors.bgApp,
+          },
+        ]}
+        onPress={() => handleItemPress(item.id)}
+        accessibilityRole="button"
+        accessibilityLabel={`${item.title}, ${item.isUnread ? 'unread' : 'read'}`}
+      >
+        <View
+          style={[
+            styles.iconCircle,
+            {
+              backgroundColor: iconBg,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
           {item.type === 'HIGH_VOLATILITY' ? (
-            <AlertTriangle size={18} color={COLORS.alertWarning} />
+            <AlertTriangle size={17} color={iconColor} />
           ) : item.type === 'EVENT_ALERT' ? (
-            <Zap size={18} color={COLORS.sentimentBullish} />
+            <TrendingUp size={17} color={iconColor} />
           ) : (
-            <TrendingUp size={18} color={COLORS.alertInfo} />
+            <CheckCircle2 size={17} color={iconColor} />
           )}
         </View>
 
         <View style={styles.textContainer}>
           <View style={styles.titleRow}>
-            <Text style={styles.itemTitle}>{item.title}</Text>
-            {item.isUnread && <View style={styles.unreadDot} />}
+            <Text style={[styles.itemTitle, { color: colors.textPrimary }]}>{item.title}</Text>
+            {item.isUnread && (
+              <View style={[styles.unreadDot, { backgroundColor: colors.sentimentBearish }]} />
+            )}
           </View>
-          <Text style={styles.itemDescription}>{item.description}</Text>
-          <Text style={styles.itemTime}>{item.time}</Text>
+          <Text style={[styles.itemDescription, { color: colors.textSecondary }]}>
+            {item.description}
+          </Text>
+          <Text style={[styles.itemTime, { color: colors.textMuted }]}>{item.time}</Text>
         </View>
-      </View>
+      </Pressable>
     );
   };
 
   return (
-    <SafeScreenWrapper edges={['top']}>
-      <View style={styles.header}>
+    <SafeScreenWrapper edges={['top', 'bottom']}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.bgApp,
+            borderBottomColor: colors.borderSubtle,
+          },
+        ]}
+      >
         <Pressable
           style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.7 }]}
           onPress={() => navigation.goBack()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
-          accessibilityLabel="Back to previous page"
+          accessibilityLabel="Back"
         >
-          <ArrowLeft size={22} color={COLORS.textPrimary} />
+          <ChevronLeft size={22} color={colors.textPrimary} />
+          <Text style={[styles.backText, { color: colors.textPrimary }]}>Back</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Notifications</Text>
-        <View style={{ width: 36 }} />
+
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Notifications</Text>
+
+        {/* Intentionally empty right slot per editorial Strava-style Notification UX */}
+        <View style={styles.headerRightSpacer} />
       </View>
 
       <FlatList
-        data={MOCK_NOTIFICATIONS}
+        data={items}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
+              No notifications yet
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+              High-impact event windows and accuracy logs will appear here.
+            </Text>
+          </View>
+        }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
@@ -108,51 +181,52 @@ export const NotificationPage = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   header: {
-    height: 56,
+    height: 58,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    backgroundColor: COLORS.bgApp,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
   },
   backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    minWidth: 72,
+    minHeight: 44,
+    gap: 2,
+  },
+  backText: {
+    fontFamily: FONTS.sans,
+    fontSize: 14,
+    fontWeight: '600',
   },
   headerTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 16,
+    fontFamily: FONTS.serif,
+    fontSize: 19,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+  },
+  headerRightSpacer: {
+    minWidth: 72,
   },
   listContent: {
-    paddingVertical: 8,
+    paddingBottom: 40,
   },
   itemContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
     gap: 14,
-  },
-  itemUnread: {
-    backgroundColor: 'rgba(21, 26, 35, 0.4)',
+    alignItems: 'flex-start',
   },
   iconCircle: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
   textContainer: {
     flex: 1,
@@ -162,32 +236,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
   },
   itemTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 14,
+    fontFamily: FONTS.serif,
+    fontSize: 15,
     fontWeight: '700',
-    color: COLORS.textPrimary,
     flex: 1,
+    lineHeight: 20,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.sentimentBearish,
-    marginLeft: 8,
   },
   itemDescription: {
     fontFamily: FONTS.sans,
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
+    fontSize: 13,
+    lineHeight: 19,
   },
   itemTime: {
     fontFamily: FONTS.mono,
-    fontSize: 10,
-    color: COLORS.textMuted,
+    fontSize: 11,
     marginTop: 2,
+    ...TABULAR_NUMS,
+  },
+  emptyState: {
+    paddingHorizontal: 24,
+    paddingVertical: 64,
+    alignItems: 'center',
+    gap: 6,
+  },
+  emptyTitle: {
+    fontFamily: FONTS.serif,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  emptySubtitle: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 19,
   },
 });
-

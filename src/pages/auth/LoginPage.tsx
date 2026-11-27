@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
 import { authApi } from '../../api/auth.api';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useUIStore } from '../../store/useUIStore';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
 
 export const LoginPage = ({ navigation }: any) => {
+  const colors = useThemeColors();
   const [email, setEmail] = useState('user@example.com');
   const [password, setPassword] = useState('PasswordSuperAman123!');
   const [loading, setLoading] = useState(false);
@@ -16,36 +26,36 @@ export const LoginPage = ({ navigation }: any) => {
   const showToast = useUIStore((s) => s.showToast);
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!email.trim() || !password.trim()) {
       showToast({
         type: 'error',
-        title: 'Form Belum Lengkap',
-        message: 'Mohon masukkan email dan kata sandi Anda.',
+        title: 'Incomplete Form',
+        message: 'Please enter both your email address and password.',
       });
       return;
     }
 
     setLoading(true);
     try {
-      const res = await authApi.login({ email, password });
+      const res = await authApi.login({ email: email.trim(), password });
       if (res.success && res.data) {
         await loginSuccess(res.data, {
           user_id: 'usr_01HXYZ789A',
           name: 'Fahmi Dani',
-          email,
+          email: email.trim(),
           role: 'PRO_TRADER',
         });
         showToast({
           type: 'success',
-          title: 'Login Berhasil',
-          message: 'Selamat datang kembali di ForeCastFX.',
+          title: 'Signed In',
+          message: 'Welcome back to ForeCastFX.',
         });
       }
     } catch (e: any) {
       showToast({
         type: 'error',
-        title: 'Login Gagal',
-        message: e?.message || 'Kredensial tidak valid.',
+        title: 'Sign In Failed',
+        message: e?.message || 'Invalid credentials.',
       });
     } finally {
       setLoading(false);
@@ -53,177 +63,208 @@ export const LoginPage = ({ navigation }: any) => {
   };
 
   return (
-    <SafeScreenWrapper>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.brandCluster}>
-            <Text style={styles.brandTitle}>ForeCastFX</Text>
-            <View style={styles.brandDot} />
-          </View>
-          <Text style={styles.subtitle}>Institutional Macro Intelligence Terminal</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.formTitle}>Sign In</Text>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>EMAIL ADDRESS</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="trader@hedgefund.com"
-              placeholderTextColor={COLORS.textMuted}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
+    <SafeScreenWrapper edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={[styles.kicker, { color: colors.textMuted }]}>US MACRO INTELLIGENCE</Text>
+            <Text style={[styles.brandTitle, { color: colors.textPrimary }]}>ForeCastFX</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Macroeconomic briefings, Z-score signals, and intermarket charts
+            </Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••••••"
-              placeholderTextColor={COLORS.textMuted}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [styles.loginButton, pressed && { opacity: 0.85 }]}
-            onPress={handleLogin}
-            disabled={loading}
-            accessibilityRole="button"
-            accessibilityLabel="Sign In to Terminal"
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surfaceCard,
+                borderColor: colors.borderSubtle,
+              },
+            ]}
           >
-            {loading ? (
-              <ActivityIndicator color={COLORS.textInverse} />
-            ) : (
-              <Text style={styles.loginButtonText}>Sign In to Terminal</Text>
-            )}
-          </Pressable>
-        </View>
+            <Text style={[styles.formTitle, { color: colors.textPrimary }]}>Sign In</Text>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an institutional account?</Text>
-          <Pressable
-            onPress={() => navigation.navigate('Register')}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityRole="link"
-            accessibilityLabel="Register Institutional Account"
-          >
-            <Text style={styles.registerLink}>Register Now</Text>
-          </Pressable>
-        </View>
-      </View>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.textMuted }]}>EMAIL ADDRESS</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgApp,
+                    borderColor: colors.borderSubtle,
+                    color: colors.textPrimary,
+                  },
+                ]}
+                placeholder="email@example.com"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                accessibilityLabel="Email address"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.textMuted }]}>PASSWORD</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgApp,
+                    borderColor: colors.borderSubtle,
+                    color: colors.textPrimary,
+                  },
+                ]}
+                placeholder="Enter your password"
+                placeholderTextColor={colors.textMuted}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                accessibilityLabel="Password"
+              />
+            </View>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.loginButton,
+                { backgroundColor: colors.accentNavy },
+                pressed && { opacity: 0.88 },
+              ]}
+              onPress={handleLogin}
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityLabel="Sign In to ForeCastFX"
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.textInverse} />
+              ) : (
+                <Text style={[styles.loginButtonText, { color: colors.textInverse }]}>
+                  Sign In to Terminal
+                </Text>
+              )}
+            </Pressable>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+              Need an account?
+            </Text>
+            <Pressable
+              style={styles.linkTouch}
+              onPress={() => navigation.navigate('Register')}
+              accessibilityRole="link"
+              accessibilityLabel="Create an account"
+            >
+              <Text style={[styles.registerLink, { color: colors.sentimentBullish }]}>
+                Create Account
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeScreenWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  flex: {
     flex: 1,
-    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
     justifyContent: 'center',
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
+    gap: 4,
   },
-  brandCluster: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  kicker: {
+    fontFamily: FONTS.mono,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.0,
   },
   brandTitle: {
-    fontFamily: FONTS.sans,
+    fontFamily: FONTS.serif,
     fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.5,
-  },
-  brandDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.sentimentBullish,
-    marginLeft: 6,
+    fontWeight: '700',
   },
   subtitle: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
   },
   card: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 4,
+    padding: 18,
   },
   formTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 18,
+    fontFamily: FONTS.serif,
+    fontSize: 20,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   label: {
     fontFamily: FONTS.mono,
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.textSecondary,
     marginBottom: 6,
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
   input: {
-    backgroundColor: COLORS.surfaceSecondary,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    minHeight: 46,
     fontFamily: FONTS.sans,
     fontSize: 14,
-    color: COLORS.textPrimary,
   },
   loginButton: {
-    backgroundColor: COLORS.sentimentBullish,
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderRadius: 4,
     minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
+    marginTop: 8,
   },
   loginButtonText: {
     fontFamily: FONTS.sans,
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textInverse,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: 24,
+    marginTop: 20,
   },
   footerText: {
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: COLORS.textSecondary,
+  },
+  linkTouch: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
   },
   registerLink: {
     fontFamily: FONTS.sans,
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.sentimentBullish,
   },
 });
-

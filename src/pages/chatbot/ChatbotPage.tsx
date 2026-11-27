@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { ArrowLeft, Bot, Zap } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
 import { MessageBubble, QuickPromptChips, ChatInputBar } from '../../components/chatbot';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
+import { useThemeColors } from '../../store/useUIStore';
 import { ChatMessage } from '../../types';
 import { chatbotApi } from '../../api/chatbot.api';
 
@@ -24,6 +24,8 @@ const QUICK_PROMPTS = [
 ];
 
 export const ChatbotPage = ({ route, navigation }: any) => {
+  const colors = useThemeColors();
+  const scrollRef = useRef<ScrollView | null>(null);
   const activeContext = route?.params?.context || 'Consumer Price Index (CPI) MoM';
 
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -38,15 +40,15 @@ export const ChatbotPage = ({ route, navigation }: any) => {
       sender: 'ai',
       text: `Synthesis across 140 macro vectors indicates an upside surprise risk (+0.4% MoM vs +0.3% expected).
 
-1. USOIL Crude Surge (+6.5% Deviation) — Weight: 35%
+1. USOIL Crude Surge (+6.5% Deviation, Weight: 35%)
 Strong energy pass-through elevating transportation baseline.
 
-2. ISM Prices Paid (55.4 vs 52.8 Prev) — Weight: 30%
+2. ISM Prices Paid (55.4 vs 52.8 Prev, Weight: 30%)
 Persistent input price pressure sustained across mid-tier sectors.
 
 Implied Forecast:
-• DXY Implied: +38 pips to 104.85
-• Gold (XAU): -$18.40 drag`,
+• DXY Implied: +38 pips toward 104.85
+• Gold (XAUUSD): -$18.40 drag`,
       timestamp: '17:29 WIB',
       isHawkish: true,
     },
@@ -56,8 +58,8 @@ Implied Forecast:
   const [loading, setLoading] = useState(false);
 
   const handleSendMessage = async (textToSend?: string) => {
-    const query = textToSend || inputText;
-    if (!query.trim()) return;
+    const query = (textToSend || inputText).trim();
+    if (!query || loading) return;
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -67,8 +69,9 @@ Implied Forecast:
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    setInputText('');
+    if (!textToSend) setInputText('');
     setLoading(true);
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
 
     try {
       const res = await chatbotApi.sendQuery({ question: query });
@@ -76,7 +79,9 @@ Implied Forecast:
         id: (Date.now() + 1).toString(),
         sender: 'ai',
         text: res.data.answer,
-        timestamp: 'Just now',
+        timestamp: res.data.latency_seconds
+          ? `${res.data.latency_seconds.toFixed(2)}s`
+          : 'Just now',
         isHawkish: true,
       };
       setMessages((prev) => [...prev, aiMsg]);
@@ -84,71 +89,78 @@ Implied Forecast:
       const fallbackMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: 'Model saat ini sedang memproses data feed live. Sinyal tetap mengindikasikan tekanan hawkish.',
+        text: 'Unable to reach the synthesis service right now. Please try again shortly.',
         timestamp: 'Just now',
       };
       setMessages((prev) => [...prev, fallbackMsg]);
     } finally {
       setLoading(false);
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
 
   return (
     <SafeScreenWrapper edges={['top', 'bottom']}>
       <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={[styles.keyboardContainer, { backgroundColor: colors.bgApp }]}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.bgApp,
+              borderBottomColor: colors.borderSubtle,
+            },
+          ]}
+        >
           <Pressable
             style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}
             onPress={() => navigation.goBack()}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
-            accessibilityLabel="Back to previous page"
+            accessibilityLabel="Back to previous screen"
           >
-            <ArrowLeft size={22} color={COLORS.textPrimary} />
+            <ArrowLeft size={20} color={colors.textPrimary} />
           </Pressable>
 
           <View style={styles.headerCenter}>
-            <View style={styles.botIconCircle}>
-              <Bot size={20} color={COLORS.sentimentBullish} />
-            </View>
-            <View>
-              <Text style={styles.headerTitle}>Macro Intelligence Copilot</Text>
-              <View style={styles.headerStatusRow}>
-                <View style={styles.headerPulseDot} />
-                <Text style={styles.headerStatusText}>Online • Quantitative Context</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={{ width: 36 }} />
-        </View>
-
-        {/* Active Macro Context Banner */}
-        <View style={styles.contextBanner}>
-          <View style={styles.contextLeft}>
-            <Zap size={15} color={COLORS.alertWarning} />
-            <Text style={styles.contextText} numberOfLines={1}>
-              <Text style={{ color: COLORS.alertWarning, fontWeight: '700' }}>Active Context: </Text>
-              {activeContext} • Consensus: 85% Good for USD
+            <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+              ForeCastFX AI Analyst
+            </Text>
+            <Text style={[styles.headerStatusText, { color: colors.sentimentBullish }]}>
+              Active Context Ready
             </Text>
           </View>
-          <View style={styles.liveFeedTag}>
-            <View style={styles.liveDot} />
-            <Text style={styles.liveFeedText}>LIVE FEED</Text>
-          </View>
+
+          <View style={styles.headerSpacer} />
         </View>
 
-        {/* Chat History Messages */}
+        <View
+          style={[
+            styles.contextBanner,
+            {
+              backgroundColor: colors.surfaceCard,
+              borderBottomColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <Text style={[styles.contextText, { color: colors.textPrimary }]} numberOfLines={1}>
+            <Text style={{ fontWeight: '700', color: colors.sentimentBullish }}>CONTEXT: </Text>
+            {activeContext} • 85% Good for USD
+          </Text>
+        </View>
+
         <ScrollView
+          ref={scrollRef}
           style={styles.chatScroll}
           contentContainerStyle={styles.chatScrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={styles.sessionMarker}>
-            <Text style={styles.sessionMarkerText}>TODAY • INSTITUTIONAL SESSION</Text>
+            <Text style={[styles.sessionMarkerText, { color: colors.textMuted }]}>
+              TODAY • MACRO DESK SESSION
+            </Text>
           </View>
 
           {messages.map((msg) => (
@@ -156,12 +168,18 @@ Implied Forecast:
           ))}
         </ScrollView>
 
-        {/* Quick Suggestion Chips */}
-        <View style={styles.quickChipsWrapper}>
+        <View
+          style={[
+            styles.quickChipsWrapper,
+            {
+              backgroundColor: colors.bgApp,
+              borderTopColor: colors.borderSubtle,
+            },
+          ]}
+        >
           <QuickPromptChips prompts={QUICK_PROMPTS} onSelectPrompt={handleSendMessage} />
         </View>
 
-        {/* Bottom Fixed Terminal Prompt Input Bar */}
         <ChatInputBar
           value={inputText}
           onChangeText={setInputText}
@@ -176,129 +194,66 @@ Implied Forecast:
 const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
-    backgroundColor: COLORS.bgApp,
   },
   header: {
-    height: 56,
+    height: 58,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
-    backgroundColor: COLORS.bgApp,
   },
   backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
+    width: 44,
+    height: 44,
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
   headerCenter: {
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
-    gap: 10,
-  },
-  botIconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: COLORS.surfaceElevated,
-    borderWidth: 1,
-    borderColor: COLORS.sentimentBullish,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 15,
+    fontFamily: FONTS.serif,
+    fontSize: 18,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  headerStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginTop: 1,
-  },
-  headerPulseDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: COLORS.sentimentBullish,
   },
   headerStatusText: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    color: COLORS.sentimentBullish,
+    fontWeight: '600',
+    marginTop: 1,
+  },
+  headerSpacer: {
+    width: 44,
   },
   contextBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceCard,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  contextLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
+    paddingVertical: 9,
   },
   contextText: {
-    fontFamily: FONTS.sans,
-    fontSize: 12,
-    color: COLORS.textPrimary,
-    flex: 1,
-  },
-  liveFeedTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: COLORS.surfaceElevated,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 999,
-  },
-  liveDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.sentimentBullish,
-  },
-  liveFeedText: {
     fontFamily: FONTS.mono,
-    fontSize: 9,
-    fontWeight: '700',
-    color: COLORS.sentimentBullish,
+    fontSize: 11,
   },
   chatScroll: {
     flex: 1,
   },
   chatScrollContent: {
     padding: 16,
-    gap: 16,
+    gap: 14,
   },
   sessionMarker: {
     alignSelf: 'center',
-    backgroundColor: COLORS.surfaceElevated,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
+    paddingVertical: 2,
   },
   sessionMarkerText: {
     fontFamily: FONTS.mono,
     fontSize: 10,
-    color: COLORS.textSecondary,
+    letterSpacing: 0.8,
   },
   quickChipsWrapper: {
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
   },
 });
-

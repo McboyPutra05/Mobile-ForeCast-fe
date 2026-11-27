@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
 import { authApi } from '../../api/auth.api';
-import { useUIStore } from '../../store/useUIStore';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
 
 export const RegisterPage = ({ navigation }: any) => {
+  const colors = useThemeColors();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,31 +25,35 @@ export const RegisterPage = ({ navigation }: any) => {
   const showToast = useUIStore((s) => s.showToast);
 
   const handleRegister = async () => {
-    if (!name || !email || !password) {
+    if (!name.trim() || !email.trim() || !password.trim()) {
       showToast({
         type: 'error',
-        title: 'Form Belum Lengkap',
-        message: 'Mohon isi nama, email, dan password Anda.',
+        title: 'Incomplete Form',
+        message: 'Please enter your name, email address, and password.',
       });
       return;
     }
 
     setLoading(true);
     try {
-      const res = await authApi.register({ name, email, password });
+      const res = await authApi.register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
       if (res.success) {
         showToast({
           type: 'success',
-          title: 'Registrasi Berhasil',
-          message: 'Akun Anda berhasil dibuat. Silakan login.',
+          title: 'Account Created',
+          message: 'Your account has been created. Sign in to continue.',
         });
         navigation.navigate('Login');
       }
     } catch (e: any) {
       showToast({
         type: 'error',
-        title: 'Registrasi Gagal',
-        message: e?.message || 'Gagal mendaftarkan akun.',
+        title: 'Registration Failed',
+        message: e?.message || 'Unable to register account.',
       });
     } finally {
       setLoading(false);
@@ -47,164 +61,217 @@ export const RegisterPage = ({ navigation }: any) => {
   };
 
   return (
-    <SafeScreenWrapper>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.brandTitle}>Create Account</Text>
-          <Text style={styles.subtitle}>Join ForeCastFX Macro Analytics Network</Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>FULL NAME</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Fahmi Dani"
-              placeholderTextColor={COLORS.textMuted}
-              value={name}
-              onChangeText={setName}
-            />
+    <SafeScreenWrapper edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={[styles.kicker, { color: colors.textMuted }]}>FORECASTFX ACCESS</Text>
+            <Text style={[styles.brandTitle, { color: colors.textPrimary }]}>Create Account</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Register to access macro briefings and Z-score release alerts
+            </Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>WORK EMAIL</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="trader@hedgefund.com"
-              placeholderTextColor={COLORS.textMuted}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Minimum 8 characters"
-              placeholderTextColor={COLORS.textMuted}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [styles.submitButton, pressed && { opacity: 0.85 }]}
-            onPress={handleRegister}
-            disabled={loading}
-            accessibilityRole="button"
-            accessibilityLabel="Complete Registration"
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surfaceCard,
+                borderColor: colors.borderSubtle,
+              },
+            ]}
           >
-            {loading ? (
-              <ActivityIndicator color={COLORS.textInverse} />
-            ) : (
-              <Text style={styles.submitButtonText}>Complete Registration</Text>
-            )}
-          </Pressable>
-        </View>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.textMuted }]}>FULL NAME</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgApp,
+                    borderColor: colors.borderSubtle,
+                    color: colors.textPrimary,
+                  },
+                ]}
+                placeholder="Your Name"
+                placeholderTextColor={colors.textMuted}
+                value={name}
+                onChangeText={setName}
+                accessibilityLabel="Full name"
+              />
+            </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account?</Text>
-          <Pressable
-            onPress={() => navigation.navigate('Login')}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityRole="link"
-            accessibilityLabel="Sign In"
-          >
-            <Text style={styles.loginLink}>Sign In</Text>
-          </Pressable>
-        </View>
-      </View>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.textMuted }]}>WORK EMAIL</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgApp,
+                    borderColor: colors.borderSubtle,
+                    color: colors.textPrimary,
+                  },
+                ]}
+                placeholder="email@example.com"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                accessibilityLabel="Work email"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.textMuted }]}>PASSWORD</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.bgApp,
+                    borderColor: colors.borderSubtle,
+                    color: colors.textPrimary,
+                  },
+                ]}
+                placeholder="Minimum 8 characters"
+                placeholderTextColor={colors.textMuted}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                accessibilityLabel="Password"
+              />
+            </View>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.submitButton,
+                { backgroundColor: colors.accentNavy },
+                pressed && { opacity: 0.88 },
+              ]}
+              onPress={handleRegister}
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityLabel="Complete Registration"
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.textInverse} />
+              ) : (
+                <Text style={[styles.submitButtonText, { color: colors.textInverse }]}>
+                  Complete Registration
+                </Text>
+              )}
+            </Pressable>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+              Already have an account?
+            </Text>
+            <Pressable
+              style={styles.linkTouch}
+              onPress={() => navigation.navigate('Login')}
+              accessibilityRole="link"
+              accessibilityLabel="Sign In"
+            >
+              <Text style={[styles.loginLink, { color: colors.sentimentBullish }]}>Sign In</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeScreenWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  flex: {
     flex: 1,
-    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
     justifyContent: 'center',
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 24,
+    gap: 4,
+  },
+  kicker: {
+    fontFamily: FONTS.mono,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.0,
   },
   brandTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 28,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
+    fontFamily: FONTS.serif,
+    fontSize: 30,
+    fontWeight: '700',
   },
   subtitle: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
   },
   card: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 4,
+    padding: 18,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   label: {
     fontFamily: FONTS.mono,
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.textSecondary,
     marginBottom: 6,
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
   input: {
-    backgroundColor: COLORS.surfaceSecondary,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    minHeight: 46,
     fontFamily: FONTS.sans,
     fontSize: 14,
-    color: COLORS.textPrimary,
   },
   submitButton: {
-    backgroundColor: COLORS.sentimentBullish,
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderRadius: 4,
     minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
+    marginTop: 8,
   },
   submitButtonText: {
     fontFamily: FONTS.sans,
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textInverse,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: 24,
+    marginTop: 20,
   },
   footerText: {
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: COLORS.textSecondary,
+  },
+  linkTouch: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
   },
   loginLink: {
     fontFamily: FONTS.sans,
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.sentimentBullish,
   },
 });
-

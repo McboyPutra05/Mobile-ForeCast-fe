@@ -1,321 +1,506 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, Pressable } from 'react-native';
-import {
-  ArrowLeft,
-  Moon,
-  Zap,
-  Bell,
-  Database,
-  Sliders,
-  LogOut,
-  ChevronRight,
-  ShieldCheck,
-} from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, LogOut } from 'lucide-react-native';
 import { SafeScreenWrapper } from '../../components/common/SafeScreenWrapper';
-import { COLORS } from '../../constants/colors';
-import { FONTS } from '../../constants/typography';
+import { FONTS, TABULAR_NUMS } from '../../constants/typography';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useUIStore } from '../../store/useUIStore';
+import { useMarketStore } from '../../store/useMarketStore';
+import { useUIStore, useThemeColors } from '../../store/useUIStore';
+import { queryClient } from '../../api/queryClient';
+import { MarketSymbol, Timeframe } from '../../types';
+
+const TIMEFRAME_OPTIONS: Timeframe[] = ['15m', '1h', '4h', '1d'];
+const ASSET_OPTIONS: MarketSymbol[] = ['DXY', 'USOIL', 'XAUUSD', 'USDIDR'];
 
 export const SettingsPage = ({ navigation }: any) => {
-  const [darkMode, setDarkMode] = useState(true);
-  const [highAlertPush, setHighAlertPush] = useState(true);
-  const [rapidCacheTTL, setRapidCacheTTL] = useState(true);
-  const [hapticFeedback, setHapticFeedback] = useState(true);
+  const colors = useThemeColors();
 
-  const logout = useAuthStore((s) => s.logout);
+  const themeMode = useUIStore((s) => s.themeMode);
+  const setThemeMode = useUIStore((s) => s.setThemeMode);
+  const defaultTimeframe = useUIStore((s) => s.defaultTimeframe);
+  const setDefaultTimeframe = useUIStore((s) => s.setDefaultTimeframe);
+  const primaryAsset = useUIStore((s) => s.primaryAsset);
+  const setPrimaryAsset = useUIStore((s) => s.setPrimaryAsset);
+  const highAlertPush = useUIStore((s) => s.highAlertPush);
+  const setHighAlertPush = useUIStore((s) => s.setHighAlertPush);
+  const hapticCues = useUIStore((s) => s.hapticCues);
+  const setHapticCues = useUIStore((s) => s.setHapticCues);
+  const dynamicCacheTTL = useUIStore((s) => s.dynamicCacheTTL);
+  const setDynamicCacheTTL = useUIStore((s) => s.setDynamicCacheTTL);
   const showToast = useUIStore((s) => s.showToast);
+
+  const setActiveSymbol = useMarketStore((s) => s.setActiveSymbol);
+  const logout = useAuthStore((s) => s.logout);
+
+  const handleSelectAsset = (symbol: MarketSymbol) => {
+    setPrimaryAsset(symbol);
+    setActiveSymbol(symbol);
+  };
+
+  const handleClearCache = () => {
+    queryClient.clear();
+    showToast({
+      type: 'success',
+      title: 'Local Cache Cleared',
+      message: 'TanStack Query cache and buffered snapshots have been cleared.',
+    });
+  };
 
   const handleLogout = async () => {
     await logout();
     showToast({
       type: 'info',
-      title: 'Session Ended',
-      message: 'You have been safely signed out.',
-    });
-  };
-
-  const clearCache = () => {
-    showToast({
-      type: 'success',
-      title: 'Cache Cleared',
-      message: 'Redis query caches and OHLC buffers successfully purged.',
+      title: 'Signed Out',
+      message: 'Your session has been ended on this device.',
     });
   };
 
   return (
-    <SafeScreenWrapper edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
+    <SafeScreenWrapper edges={['top', 'bottom']}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.bgApp,
+            borderBottomColor: colors.borderSubtle,
+          },
+        ]}
+      >
         <Pressable
           style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}
           onPress={() => navigation.goBack()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
-          accessibilityLabel="Back to previous page"
+          accessibilityLabel="Back to previous screen"
         >
-          <ArrowLeft size={22} color={COLORS.textPrimary} />
+          <ArrowLeft size={20} color={colors.textPrimary} />
         </Pressable>
-        <Text style={styles.headerTitle}>Settings and Preferences</Text>
-        <View style={{ width: 36 }} />
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+          Settings & Preferences
+        </Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.bgApp }]}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Section 1: Display & Appearance */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>DISPLAY & THEME</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.rowLeft}>
-                <Moon size={18} color={COLORS.textSecondary} />
-                <View>
-                  <Text style={styles.rowTitle}>Dark Mode (OLED Slate)</Text>
-                  <Text style={styles.rowSubtitle}>Optimized for institutional trading desks</Text>
-                </View>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            DISPLAY & TRADING
+          </Text>
+
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surfaceCard,
+                borderColor: colors.borderSubtle,
+              },
+            ]}
+          >
+            <View style={styles.blockRow}>
+              <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>Visual Theme</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
+                Editorial Ivory (default) or Dark Ink mode
+              </Text>
+
+              <View
+                style={[
+                  styles.segmentedWrap,
+                  {
+                    backgroundColor: colors.bgApp,
+                    borderColor: colors.borderSubtle,
+                  },
+                ]}
+              >
+                <Pressable
+                  style={[
+                    styles.segmentBtn,
+                    themeMode === 'light' && { backgroundColor: colors.accentNavy },
+                  ]}
+                  onPress={() => setThemeMode('light')}
+                  accessibilityRole="button"
+                  accessibilityLabel="Editorial Ivory light theme"
+                  accessibilityState={{ selected: themeMode === 'light' }}
+                >
+                  <Text
+                    style={[
+                      styles.segmentText,
+                      { color: themeMode === 'light' ? colors.textInverse : colors.textSecondary },
+                    ]}
+                  >
+                    Editorial Ivory
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.segmentBtn,
+                    themeMode === 'dark' && { backgroundColor: colors.accentNavy },
+                  ]}
+                  onPress={() => setThemeMode('dark')}
+                  accessibilityRole="button"
+                  accessibilityLabel="Dark Ink dark theme"
+                  accessibilityState={{ selected: themeMode === 'dark' }}
+                >
+                  <Text
+                    style={[
+                      styles.segmentText,
+                      { color: themeMode === 'dark' ? colors.textInverse : colors.textSecondary },
+                    ]}
+                  >
+                    Dark Ink
+                  </Text>
+                </Pressable>
               </View>
-              <Switch
-                value={darkMode}
-                onValueChange={setDarkMode}
-                trackColor={{ false: COLORS.surfaceElevated, true: COLORS.sentimentBullish }}
-                thumbColor={COLORS.textPrimary}
-              />
             </View>
 
-            <View style={[styles.row, styles.borderTop]}>
-              <View style={styles.rowLeft}>
-                <Sliders size={18} color={COLORS.textSecondary} />
-                <View>
-                  <Text style={styles.rowTitle}>Chart Haptic Cues</Text>
-                  <Text style={styles.rowSubtitle}>Vibrate on crosshair price snap</Text>
-                </View>
+            <View style={[styles.blockRow, styles.borderTop, { borderTopColor: colors.borderSubtle }]}>
+              <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                Default Chart Timeframe
+              </Text>
+              <View style={styles.optionRow}>
+                {TIMEFRAME_OPTIONS.map((tf) => {
+                  const selected = defaultTimeframe === tf;
+                  return (
+                    <Pressable
+                      key={tf}
+                      style={[
+                        styles.optionChip,
+                        selected
+                          ? { backgroundColor: colors.accentNavy, borderColor: colors.accentNavy }
+                          : { backgroundColor: colors.bgApp, borderColor: colors.borderSubtle },
+                      ]}
+                      onPress={() => setDefaultTimeframe(tf)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Default timeframe ${tf}`}
+                      accessibilityState={{ selected }}
+                    >
+                      <Text
+                        style={[
+                          styles.optionChipText,
+                          { color: selected ? colors.textInverse : colors.textSecondary },
+                        ]}
+                      >
+                        {tf.toUpperCase()}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
-              <Switch
-                value={hapticFeedback}
-                onValueChange={setHapticFeedback}
-                trackColor={{ false: COLORS.surfaceElevated, true: COLORS.sentimentBullish }}
-                thumbColor={COLORS.textPrimary}
-              />
+            </View>
+
+            <View style={[styles.blockRow, styles.borderTop, { borderTopColor: colors.borderSubtle }]}>
+              <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>Primary Asset</Text>
+              <View style={styles.optionRow}>
+                {ASSET_OPTIONS.map((sym) => {
+                  const selected = primaryAsset === sym;
+                  return (
+                    <Pressable
+                      key={sym}
+                      style={[
+                        styles.optionChip,
+                        selected
+                          ? { backgroundColor: colors.accentNavy, borderColor: colors.accentNavy }
+                          : { backgroundColor: colors.bgApp, borderColor: colors.borderSubtle },
+                      ]}
+                      onPress={() => handleSelectAsset(sym)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Primary asset ${sym}`}
+                      accessibilityState={{ selected }}
+                    >
+                      <Text
+                        style={[
+                          styles.optionChipText,
+                          { color: selected ? colors.textInverse : colors.textSecondary },
+                        ]}
+                      >
+                        {sym}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
           </View>
         </View>
 
-        {/* Section 2: Macro High-Alert Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>NOTIFICATIONS & ALERTS</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.rowLeft}>
-                <Zap size={18} color={COLORS.alertWarning} />
-                <View>
-                  <Text style={styles.rowTitle}>High-Alert Push Window</Text>
-                  <Text style={styles.rowSubtitle}>Notify T-minus 15m before High Impact releases</Text>
-                </View>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            NOTIFICATIONS & ALERTS
+          </Text>
+
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surfaceCard,
+                borderColor: colors.borderSubtle,
+              },
+            ]}
+          >
+            <View style={styles.switchRow}>
+              <View style={styles.rowTextWrap}>
+                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                  High-Alert Window (T-15m)
+                </Text>
+                <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
+                  Pre-release notifications ahead of High Impact USD events
+                </Text>
               </View>
               <Switch
                 value={highAlertPush}
                 onValueChange={setHighAlertPush}
-                trackColor={{ false: COLORS.surfaceElevated, true: COLORS.alertWarning }}
-                thumbColor={COLORS.textPrimary}
+                trackColor={{ false: colors.borderActive, true: colors.sentimentBullish }}
+                thumbColor={colors.textInverse}
+                accessibilityLabel="Toggle High-Alert Window notifications"
               />
             </View>
 
-            <View style={[styles.row, styles.borderTop]}>
-              <View style={styles.rowLeft}>
-                <Bell size={18} color={COLORS.textSecondary} />
-                <View>
-                  <Text style={styles.rowTitle}>Immediate Event Burst Alerts</Text>
-                  <Text style={styles.rowSubtitle}>Toast popups on live actual vs forecast delta</Text>
-                </View>
+            <View style={[styles.switchRow, styles.borderTop, { borderTopColor: colors.borderSubtle }]}>
+              <View style={styles.rowTextWrap}>
+                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                  Chart Crosshair Cues
+                </Text>
+                <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
+                  Tactile feedback when inspecting candlesticks
+                </Text>
               </View>
               <Switch
-                value={true}
-                disabled
-                trackColor={{ false: COLORS.surfaceElevated, true: COLORS.sentimentBullish }}
-                thumbColor={COLORS.textPrimary}
+                value={hapticCues}
+                onValueChange={setHapticCues}
+                trackColor={{ false: colors.borderActive, true: colors.sentimentBullish }}
+                thumbColor={colors.textInverse}
+                accessibilityLabel="Toggle Chart Crosshair Cues"
               />
             </View>
           </View>
         </View>
 
-        {/* Section 3: Caching & Engine Controls */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>ENGINE & CACHING</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.rowLeft}>
-                <Database size={18} color={COLORS.alertInfo} />
-                <View>
-                  <Text style={styles.rowTitle}>Dynamic Redis TTL</Text>
-                  <Text style={styles.rowSubtitle}>Auto-toggle 15s Standby / 3s High-Alert</Text>
-                </View>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            SYSTEM & CACHE
+          </Text>
+
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.surfaceCard,
+                borderColor: colors.borderSubtle,
+              },
+            ]}
+          >
+            <View style={styles.switchRow}>
+              <View style={styles.rowTextWrap}>
+                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                  Redis Dynamic TTL Polling
+                </Text>
+                <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
+                  15s Standby / 3s High-Alert burst window synchronization
+                </Text>
               </View>
               <Switch
-                value={rapidCacheTTL}
-                onValueChange={setRapidCacheTTL}
-                trackColor={{ false: COLORS.surfaceElevated, true: COLORS.alertInfo }}
-                thumbColor={COLORS.textPrimary}
+                value={dynamicCacheTTL}
+                onValueChange={setDynamicCacheTTL}
+                trackColor={{ false: colors.borderActive, true: colors.sentimentBullish }}
+                thumbColor={colors.textInverse}
+                accessibilityLabel="Toggle Redis Dynamic TTL polling"
               />
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.actionRow, styles.borderTop, pressed && { opacity: 0.7 }]}
-              onPress={clearCache}
+              style={({ pressed }) => [
+                styles.actionRow,
+                styles.borderTop,
+                { borderTopColor: colors.borderSubtle },
+                pressed && { opacity: 0.75 },
+              ]}
+              onPress={handleClearCache}
+              accessibilityRole="button"
+              accessibilityLabel="Clear Local Cache"
             >
-              <Text style={styles.actionText}>Purge Local Chart & Model Caches</Text>
-              <ChevronRight size={16} color={COLORS.textSecondary} />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Section 4: Security & Session */}
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>ACCOUNT & SECURITY</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.rowLeft}>
-                <ShieldCheck size={18} color={COLORS.sentimentBullish} />
-                <View>
-                  <Text style={styles.rowTitle}>Hardware KeyStore Security</Text>
-                  <Text style={styles.rowSubtitle}>expo-secure-store encryption active</Text>
-                </View>
+              <View style={styles.rowTextWrap}>
+                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                  Clear Local Cache
+                </Text>
+                <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
+                  Reset local query cache and force fresh briefing fetch
+                </Text>
               </View>
+              <ChevronRight size={17} color={colors.textSecondary} />
+            </Pressable>
+
+            <View style={[styles.actionRow, styles.borderTop, { borderTopColor: colors.borderSubtle }]}>
+              <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>App Version</Text>
+              <Text style={[styles.versionMono, { color: colors.textMuted }]}>
+                v1.0.0-editorial
+              </Text>
             </View>
-
-            <Pressable
-              style={({ pressed }) => [styles.actionRow, styles.borderTop, pressed && { opacity: 0.7 }]}
-              onPress={handleLogout}
-            >
-              <View style={styles.logoutLeft}>
-                <LogOut size={16} color={COLORS.sentimentBearish} />
-                <Text style={styles.logoutText}>Sign Out from Terminal</Text>
-              </View>
-              <ChevronRight size={16} color={COLORS.sentimentBearish} />
-            </Pressable>
           </View>
         </View>
 
-        {/* Disclaimer */}
-        <Text style={styles.disclaimer}>
-          ForeCastFX Mobile v1.0.0-production • Institutional Macro Predictive Decision Engine.
-        </Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.logoutBtn,
+            {
+              borderColor: colors.sentimentBearish,
+              backgroundColor: colors.sentimentBearishSubtle,
+            },
+            pressed && { opacity: 0.8 },
+          ]}
+          onPress={handleLogout}
+          accessibilityRole="button"
+          accessibilityLabel="Log Out Account"
+        >
+          <LogOut size={16} color={colors.sentimentBearish} />
+          <Text style={[styles.logoutText, { color: colors.sentimentBearish }]}>
+            Log Out Account
+          </Text>
+        </Pressable>
       </ScrollView>
     </SafeScreenWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.bgApp,
-  },
-  contentContainer: {
-    padding: 16,
-    gap: 20,
-    paddingBottom: 60,
-  },
   header: {
-    height: 56,
+    height: 58,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
-    backgroundColor: COLORS.bgApp,
   },
   backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
+    width: 44,
+    height: 44,
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 16,
+    fontFamily: FONTS.serif,
+    fontSize: 19,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+  },
+  headerSpacer: {
+    width: 44,
+  },
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 16,
+    gap: 20,
+    paddingBottom: 48,
   },
   section: {
     gap: 8,
   },
   sectionHeader: {
     fontFamily: FONTS.mono,
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    letterSpacing: 0.5,
-    marginLeft: 4,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.0,
   },
   card: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderSubtle,
-    borderRadius: 14,
+    borderRadius: 4,
     overflow: 'hidden',
   },
-  row: {
+  blockRow: {
+    padding: 14,
+    gap: 8,
+  },
+  switchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 14,
-  },
-  borderTop: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-  },
-  rowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 12,
-    flex: 1,
-  },
-  rowTitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-  },
-  rowSubtitle: {
-    fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 2,
   },
   actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 14,
+    minHeight: 52,
+    gap: 12,
   },
-  actionText: {
+  borderTop: {
+    borderTopWidth: 1,
+  },
+  rowTextWrap: {
+    flex: 1,
+    gap: 2,
+  },
+  rowTitle: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
-    color: COLORS.alertInfo,
+    fontSize: 14,
     fontWeight: '600',
   },
-  logoutLeft: {
+  rowSubtitle: {
+    fontFamily: FONTS.sans,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  segmentedWrap: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 3,
+    marginTop: 4,
+  },
+  segmentBtn: {
+    flex: 1,
+    minHeight: 40,
+    borderRadius: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentText: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  optionRow: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  optionChip: {
+    minWidth: 56,
+    minHeight: 40,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  optionChipText: {
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  versionMono: {
+    fontFamily: FONTS.mono,
+    fontSize: 12,
+    ...TABULAR_NUMS,
+  },
+  logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
+    minHeight: 48,
+    borderWidth: 1.5,
+    borderRadius: 4,
+    marginTop: 4,
   },
   logoutText: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
-    color: COLORS.sentimentBearish,
-  },
-  disclaimer: {
-    fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    marginTop: 10,
-    lineHeight: 16,
   },
 });
-
