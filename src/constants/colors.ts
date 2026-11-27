@@ -1,42 +1,113 @@
 /**
- * ForeCastFX Mobile — Color Palette Tokens
- * Strictly mapped to UI-Style-Guide.md
+ * ForeCastFX Mobile: Editorial Financial Minimalist Color Tokens
+ * Aligned with UI-Style-Guide.md (Warm Ivory Light default + Dark Ink mode)
  */
 
-export const COLORS = {
-  // Core Neutral & Canvas Colors
-  bgApp: '#0B0E14',         // Deep Canvas (Latar utama aplikasi)
-  surfaceCard: '#151A23',   // Card & Container layer pertama
-  surfaceElevated: '#1C2331', // Modal Sheet, Popover, Dropdown
-  surfaceSecondary: '#222B3D', // Input background, Badge container
+export type ThemeMode = 'light' | 'dark';
 
-  // Border & Divider Tokens
-  borderSubtle: '#1F2937',  // Garis pemisah list & kartu standar
-  borderActive: '#374151',  // Border saat input difokuskan
-  borderHighlight: '#4B5563', // Outline container aktif
+export interface ThemePalette {
+  mode: ThemeMode;
+  bgApp: string;
+  surfaceCard: string;
+  surfaceElevated: string;
+  surfaceSecondary: string;
+  borderSubtle: string;
+  borderDashed: string;
+  borderActive: string;
+  borderStrong: string;
+  sentimentBullish: string;
+  sentimentBullishSubtle: string;
+  sentimentBullishBorder: string;
+  sentimentBearish: string;
+  sentimentBearishSubtle: string;
+  sentimentBearishBorder: string;
+  alertWarning: string;
+  alertWarningSubtle: string;
+  alertWarningBorder: string;
+  accentNavy: string;
+  accentNavySubtle: string;
+  accentNavyBorder: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  textInverse: string;
+  scrim: string;
+}
 
-  // Sentimen Bullish / Good For USD
-  sentimentBullish: '#10B981', // Emerald Green (Primary Action / Good USD)
-  sentimentBullishSubtle: 'rgba(16, 185, 129, 0.12)',
-  sentimentBullishBorder: 'rgba(16, 185, 129, 0.35)',
+export const LIGHT_COLORS: ThemePalette = {
+  mode: 'light',
+  bgApp: '#FAF6F0',
+  surfaceCard: '#F2EBE1',
+  surfaceElevated: '#EAE0D2',
+  surfaceSecondary: '#E5DCCB',
 
-  // Sentimen Bearish / Bad For USD
-  sentimentBearish: '#EF4444', // Crimson Red (Primary Warning / Bad USD)
-  sentimentBearishSubtle: 'rgba(239, 68, 68, 0.12)',
-  sentimentBearishBorder: 'rgba(239, 68, 68, 0.35)',
+  borderSubtle: '#D6CFC2',
+  borderDashed: '#C8C0B4',
+  borderActive: '#A89F91',
+  borderStrong: '#1C1917',
 
-  // Alerts & Highlights
-  alertWarning: '#F59E0B',     // Amber Orange (High Alert Mode / Watchlist)
-  alertWarningSubtle: 'rgba(245, 158, 11, 0.12)',
-  alertInfo: '#3B82F6',        // Cobalt Blue (System Logs / Cache Refresh)
-  alertInfoSubtle: 'rgba(59, 130, 246, 0.12)',
+  sentimentBullish: '#2D6A4F',
+  sentimentBullishSubtle: 'rgba(45, 106, 79, 0.10)',
+  sentimentBullishBorder: 'rgba(45, 106, 79, 0.35)',
 
-  // Typography Colors
-  textPrimary: '#F9FAFB',   // Kontras tertinggi untuk angka & sinyal utama
-  textSecondary: '#9CA3AF', // Label indikator, konsensus, subtitle
-  textMuted: '#6B7280',     // Timestamp, teks footer, disclaimer
-  textInverse: '#0B0E14',   // Teks di atas tombol solid cerah
-} as const;
+  sentimentBearish: '#7F1D1D',
+  sentimentBearishSubtle: 'rgba(127, 29, 29, 0.10)',
+  sentimentBearishBorder: 'rgba(127, 29, 29, 0.35)',
 
-export type ColorToken = keyof typeof COLORS;
+  alertWarning: '#9A4506', // Darkened ochre passing >=4.5:1 on Warm Sand & Warm Ivory
+  alertWarningSubtle: 'rgba(180, 83, 9, 0.10)',
+  alertWarningBorder: 'rgba(180, 83, 9, 0.35)',
 
+  accentNavy: '#1E293B',
+  accentNavySubtle: 'rgba(30, 41, 59, 0.08)',
+  accentNavyBorder: 'rgba(30, 41, 59, 0.28)',
+
+  textPrimary: '#1C1917',
+  textSecondary: '#57534E',
+  textMuted: '#635D57', // >=4.5:1 WCAG AA contrast on both #FAF6F0 and #F2EBE1
+  textInverse: '#FAF6F0',
+  scrim: 'rgba(28, 25, 23, 0.42)',
+};
+
+export const DARK_COLORS: ThemePalette = {
+  mode: 'dark',
+  bgApp: '#121110',
+  surfaceCard: '#1C1A18',
+  surfaceElevated: '#25221F',
+  surfaceSecondary: '#2C2824',
+
+  borderSubtle: '#2E2B27',
+  borderDashed: '#3B3732',
+  borderActive: '#575148',
+  borderStrong: '#F5F2EB',
+
+  sentimentBullish: '#52B788',
+  sentimentBullishSubtle: 'rgba(82, 183, 136, 0.14)',
+  sentimentBullishBorder: 'rgba(82, 183, 136, 0.38)',
+
+  sentimentBearish: '#E06C65',
+  sentimentBearishSubtle: 'rgba(224, 108, 101, 0.14)',
+  sentimentBearishBorder: 'rgba(224, 108, 101, 0.38)',
+
+  alertWarning: '#E09F3E',
+  alertWarningSubtle: 'rgba(224, 159, 62, 0.14)',
+  alertWarningBorder: 'rgba(224, 159, 62, 0.38)',
+
+  accentNavy: '#2B3B52',
+  accentNavySubtle: 'rgba(245, 242, 235, 0.08)',
+  accentNavyBorder: 'rgba(245, 242, 235, 0.24)',
+
+  textPrimary: '#F5F2EB',
+  textSecondary: '#B8B0A4',
+  textMuted: '#9A9185', // >=4.5:1 WCAG AA contrast on #121110 and #1C1A18
+  textInverse: '#FAF6F0',
+  scrim: 'rgba(0, 0, 0, 0.65)',
+};
+
+export function getThemeColors(mode: ThemeMode): ThemePalette {
+  return mode === 'dark' ? DARK_COLORS : LIGHT_COLORS;
+}
+
+// Default export alias kept for non-hook static imports
+export const COLORS = LIGHT_COLORS;
+export type ColorToken = keyof ThemePalette;

@@ -58,7 +58,7 @@ export function useWebSocket() {
             showToast({
               type: 'warning',
               title: `Rilis Data: ${alertMsg.event_name}`,
-              message: `Aktual: ${alertMsg.actual_value} (Konsensus: ${alertMsg.forecast_value}) — Bias: ${alertMsg.instant_bias}`,
+              message: `Aktual: ${alertMsg.actual_value} (Konsensus: ${alertMsg.forecast_value}) | Bias: ${alertMsg.instant_bias}`,
               duration: 7000,
             });
           }
